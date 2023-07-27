@@ -1,0 +1,4 @@
+Instalar o cygwin
+Incluir no Path
+Na pasta de ferramentas inserir o comando:
+    make all TARGET=intel64
