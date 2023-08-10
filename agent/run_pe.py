@@ -100,5 +100,11 @@ def run_pe(filepath, out, pretty):
             json.dump(pe_dict, json_file, cls=pe_encoder, sort_keys=False)
 
     pe.close()
-	
+
+    if pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_I386']:
+        return '32 bits'
+    elif pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_AMD64']:
+        return '64 bits'
+    else:
+        return 'Arquitetura desconhecida'
  

@@ -2,11 +2,14 @@ import os
 import tempfile
 from flask import Flask, request, jsonify, send_file
 from database import create_table, insert_sample, get_samples
-from utils import zip_folder
+from utils import zip_folder, select_host_ip
 
 def create_app():
     create_table()  # Chamada da função para criar a tabela
     app = Flask(__name__)
+    app.config['TIMEOUT'] = 300
+
+    select_host_ip()
 
     @app.route('/')
     def index():
@@ -50,5 +53,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.config['TIMEOUT'] = 300
     app.run(host='0.0.0.0')
