@@ -32,6 +32,8 @@ def process(result_server_ip="localhost"):
             continue
         file_name = os.path.basename(file)
         hash = calculate_sha256_hash(file)
+
+        sample_uploader.register_sample(hash)
         
         out_dir = os.path.join(path_processed, hash)
         
@@ -80,11 +82,11 @@ def process(result_server_ip="localhost"):
         # except Exception as e:
         #     print(e)
             
-        # try:
-        #     pin_out = os.path.join(out_dir, "pin_out.txt")
-        #     run_pin(file, pin_out)
-        # except Exception as e:
-        #     print(e)
+        try:
+            
+            run_pin(file, architecture, out_dir)
+        except Exception as e:
+            print(e)
         
         # try:
         #     pin_out = os.path.join(out_dir, "frida_out.txt")
@@ -92,11 +94,11 @@ def process(result_server_ip="localhost"):
         # except Exception as e:
         #     print(e)
 
-        try:
-            dynamorio_out = os.path.join(out_dir, "dynamorio_out.txt")
-            run_dynamorio(file, architecture, dynamorio_out)
-        except Exception as e:
-            print(e)
+        # try:
+        #     dynamorio_out = os.path.join(out_dir, "dynamorio_out.txt")
+        #     run_dynamorio(file, architecture, dynamorio_out)
+        # except Exception as e:
+        #     print(e)
     
             
         # try:

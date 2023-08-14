@@ -13,6 +13,17 @@ class SampleUploader:
             return response.json()
         else:
             raise Exception("Erro ao comunicar com o servidor")
+    def register_sample(self, hash_sha256_value):
+        url = f'{self.base_url}/register'
+
+        data = {'hash_sha256': hash_sha256_value}
+
+        response = requests.post(url,  data=data)
+
+        if response.status_code == 200:
+            print('Arquivo registrado com sucesso e registrado no banco de dados.')
+        else:
+            print('Erro ao registrar o arquivo.')
 
     def upload_sample_data_file(self, file_path, hash_sha256_value):
         url = f'{self.base_url}/upload'

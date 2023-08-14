@@ -1,7 +1,7 @@
 import os
 import tempfile
 from flask import Flask, request, jsonify, send_file
-from database import create_table, insert_sample, get_samples
+from database import create_table, insert_sample, get_samples, update_sample_status
 from utils import zip_folder, select_host_ip
 
 def create_app():
@@ -14,7 +14,20 @@ def create_app():
     @app.route('/')
     def index():
         return 'Criar lista de amostras em HTML'
-
+    
+    @app.route('/register', methods=['GET', 'POST'])
+    def register_file():
+        if request.method == 'POST':
+        
+            sample_hash = request.form.get('hash_sha256', '')
+            insert_sample(sample_hash)
+            return f'Arquivo com hash "{sample_hash}" registrado no banco de dados.'
+        return '''
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <input type="submit" value="Enviar arquivo">
+            </form>
+        '''
     @app.route('/upload', methods=['GET', 'POST'])
     def upload_file():
         if request.method == 'POST':
@@ -24,8 +37,8 @@ def create_app():
                 file.save(os.path.join("results", filename))
 
                 sample_hash = request.form.get('hash_sha256', '')
-                insert_sample(filename, sample_hash)
-                return f'Arquivo "{filename}" com hash "{sample_hash}" enviado e salvo no banco de dados.'
+                update_sample_status(sample_hash, 'processed')
+                return f'Arquivo com hash "{sample_hash}" enviado e salvo no banco de dados.'
         return '''
             <form action="/upload" method="post" enctype="multipart/form-data">
                 <input type="file" name="file">
