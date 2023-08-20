@@ -1,0 +1,7 @@
+
+PsPasswd v1.24 - Local and remote password changer
+Copyright (C) 2003-2016 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+Eula declined.
+

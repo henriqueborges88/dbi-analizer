@@ -1,0 +1,7 @@
+
+PsPing v2.10 - PsPing - ping, latency, bandwidth measurement utility
+Copyright (C) 2012-2016 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+Eula declined.
+

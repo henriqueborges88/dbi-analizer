@@ -1,0 +1,7 @@
+
+PsShutdown v2.53 - Shutdown, logoff and power manage local and remote systems
+Copyright (C) 1999-2021 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+Eula declined.
+

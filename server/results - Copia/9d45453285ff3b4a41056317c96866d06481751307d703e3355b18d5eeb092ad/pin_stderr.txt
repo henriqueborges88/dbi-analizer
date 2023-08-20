@@ -1,0 +1,7 @@
+
+PsFile v1.03 - Lists files and directories opened remotely
+Copyright (C) 2001-2016 Mark Russinovich
+Sysinternals
+
+Eula declined.
+

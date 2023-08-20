@@ -1,0 +1,5 @@
+
+Junction v1.07 - Creates and lists directory links
+Copyright (C) 2005-2016 Mark Russinovich
+Sysinternals - www.sysinternals.com
+

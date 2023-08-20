@@ -1,8 +1,8 @@
 import os
 import tempfile
 from flask import Flask, request, jsonify, send_file
-from database import create_table, insert_sample, get_samples, update_sample_status
-from utils import zip_folder, select_host_ip
+from database import create_table, insert_sample, get_samples, update_sample_status, remove_all_records
+from utils import compress_folder, select_host_ip, delete_all_files_and_folders
 
 def create_app():
     create_table()  # Chamada da função para criar a tabela
@@ -50,17 +50,23 @@ def create_app():
     def get_samples_data():
         samples = get_samples()
         return jsonify(samples)
-        
-    @app.route('/download_agent')
+
+    @app.route('/clear-samples', methods=['GET'])
+    def clear_samples():
+        delete_all_files_and_folders("results")
+        remove_all_records()
+        return "Todos as amostras e registros foram removidos com sucesso" 
+     
+    @app.route('/download-agent')
     def download_agent():
-        folder_path = '../agent'  # Substitua pelo caminho da pasta que deseja compactar
+        folder_path = '../agent' 
         temp_dir = "tmp"
-        output_filename = os.path.join(temp_dir, 'agent')
+        output_filename = os.path.join(temp_dir, 'agent.zip')
 
         if not os.path.exists(output_filename):
-            zip_folder(folder_path, output_filename)
+            compress_folder(folder_path, output_filename)
         
-        return send_file(output_filename + '.zip', as_attachment=True)
+        return send_file(output_filename, as_attachment=True)
     
     return app
 

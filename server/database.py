@@ -59,3 +59,13 @@ def get_samples():
 
     conn.close()
     return samples
+
+def remove_all_records():
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # Remover todos os registros da tabela
+    cursor.execute('DELETE FROM samples')
+
+    conn.commit()
+    conn.close()

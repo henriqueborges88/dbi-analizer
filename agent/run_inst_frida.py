@@ -1,6 +1,6 @@
 import os
 import sys
-from utils import wait_until_finish, instr_proc_task_kill, instr_proc_task_kill_force, proc_kill_force
+from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
 import frida
 import subprocess
 import json
@@ -50,8 +50,8 @@ def run_frida(file, out):
     sample_proc.terminate()
     sleep(1)
     
-    instr_proc_task_kill(sample_proc, file_name)
-    instr_proc_task_kill_force(sample_proc, file_name)
+    instr_proc_task_kill(file_name)
+    instr_proc_task_kill(file_name, True)
     proc_kill_force(sample_proc)
     
     session.detach()

@@ -1,0 +1,5 @@
+
+Hex2dec v1.1 - converts hex to decimal and vice versa
+Copyright (C) 2001-2016 Mark Russinovich
+Sysinternals - www.sysinternals.com
+

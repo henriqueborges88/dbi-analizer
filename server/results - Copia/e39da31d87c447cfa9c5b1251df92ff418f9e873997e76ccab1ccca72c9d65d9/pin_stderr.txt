@@ -1,0 +1,5 @@
+
+RegDelNull v1.11 - Delete Registry keys with embedded Nulls
+Copyright (C) 2005-2016 Mark Russinovich
+Sysinternals - www.sysinternals.com
+

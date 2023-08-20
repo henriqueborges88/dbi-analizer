@@ -3,51 +3,51 @@ import os
 import re
 from subprocess import Popen, getoutput, PIPE, STDOUT
 from time import sleep
-from utils import wait_until_finish, instr_proc_task_kill, instr_proc_task_kill_force, proc_kill_force
+from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
 
-def run_dynamorio(file, architecture, out):
+def run_dynamorio(file, architecture, out_dir):
+    dynamorio_run_data_path = os.path.join(out_dir, "dynamorio_run_data.txt")
+    dynamorio_stderr_path = os.path.join(out_dir, 'dynamorio_stderr.txt')
+    dynamorio_stdout_path = os.path.join(out_dir, 'dynamorio_stdout.txt')
     if architecture == "32 bits":
         dynamorio_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/bin32/drrun.exe")
         drkill_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/bin32/DRkill.exe")
-        dynamorio_tool_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/samples/bin32/icount.dll") 
     elif architecture == "64 bits":
         dynamorio_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/bin64/drrun.exe")
         drkill_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/bin64/DRkill.exe")
-        dynamorio_tool_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/samples/bin64/icount.dll") 
     else:
         raise Exception(architecture)
     
-    file_name = os.path.basename(file)
+    target_file_name = os.path.basename(file)
     
-    dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 30 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file}\"", shell=True, stdout=PIPE, stderr=PIPE)
+    with open(dynamorio_stdout_path, 'w') as output_file, open(dynamorio_stderr_path, 'w') as error_file:
+        dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 40 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file}\"", shell=True, stdout=output_file, stderr=error_file)
     
     wait_until_finish(dynamorio_proc)
-    instr_proc_task_kill(dynamorio_proc, file_name)
-    instr_proc_task_kill_force(dynamorio_proc, file_name)
+    instr_proc_task_kill(target_file_name)
+    instr_proc_task_kill(target_file_name, True)
     wait_until_finish(dynamorio_proc, timeout=5)
     proc_kill_force(dynamorio_proc)
     Popen(f"\"{drkill_path}\" -underdr", shell=True, stdout=PIPE, stderr=PIPE)
     
-    try:
-        dynamorio_out, dynamorio_error = dynamorio_proc.communicate()
-        dynamorio_out = dynamorio_out.decode(errors='replace')
-        dynamorio_error = dynamorio_error.decode(errors='replace')
+       
+    with open(dynamorio_stderr_path, 'r') as file:
+        text = file.read()
 
-        dynamorio_dict = {
-            "dynamorio_stdout": dynamorio_out,
-            "dynamorio_stderror": dynamorio_error,
-            "dynamorio_returncode": dynamorio_proc.returncode,
-            "dynamorio_has_error": dynamorio_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
-        }
-    except Exception as ex:
-        dynamorio_dict = {
-            "dynamorio_stdout": "Tempo limite esgotado",
-            "dynamorio_stderror": dynamorio_error,
-            "dynamorio_returncode": dynamorio_proc.returncode,
-            "dynamorio_has_error": dynamorio_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
-        }
+    if "Basic counts tool results:" in text:
+        dynamorio_tool_success = True
+
+    try:
+        returncode = dynamorio_proc.returncode
+    except:
+        returncode = 2032 # Erro ao obter o returncode do instrumentador
+
+    dynamorio_dict = {
+        "dynamorio_returncode": returncode,
+        "dynamorio_tool_success": dynamorio_tool_success
+    }
 
     print("[dynamorio] Instrumentaçao concluida")
 
-    with open(out, 'w') as json_file:
+    with open(dynamorio_run_data_path, 'w') as json_file:
         json.dump(dynamorio_dict, json_file, sort_keys=False, indent=4)

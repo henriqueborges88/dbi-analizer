@@ -1,7 +1,17 @@
 import shutil
+import os
+import zipfile
 
-def zip_folder(folder_path, output_filename):
-    shutil.make_archive(output_filename, 'zip', folder_path)
+def compress_folder(source_folder, zip_file):
+    with zipfile.ZipFile(zip_file, "w", zipfile.ZIP_STORED) as zipf: # zipfile.ZIP_DEFLATED -> compacta
+        for current_folder, _, files in os.walk(source_folder):
+            for file in files:
+                full_path = os.path.join(current_folder, file)
+
+                relative_path = os.path.relpath(full_path, source_folder)
+
+                zipf.write(full_path, relative_path)
+
 
 import socket
 
@@ -50,3 +60,18 @@ def select_host_ip():
                 print("Opcao invalida.")
         else:
             print("Opcao invalida.")
+
+
+def delete_all_files_and_folders(directory_path):
+    try:
+        for item in os.listdir(directory_path):
+            item_path = os.path.join(directory_path, item)
+            if os.path.isfile(item_path):
+                os.remove(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+        print("Todos os arquivos e pastas foram removidos com sucesso.")
+        return True
+    except Exception as e:
+        print(f"Ocorreu um erro ao tentar remover os arquivos e pastas: {e}")
+        return False

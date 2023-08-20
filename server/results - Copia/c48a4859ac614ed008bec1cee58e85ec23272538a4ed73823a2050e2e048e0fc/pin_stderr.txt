@@ -1,0 +1,5 @@
+
+Ru v1.2 - Registry size usage reporter
+Copyright (C) 2013-2016 Mark Russinovich
+Sysinternals - www.sysinternals.com
+

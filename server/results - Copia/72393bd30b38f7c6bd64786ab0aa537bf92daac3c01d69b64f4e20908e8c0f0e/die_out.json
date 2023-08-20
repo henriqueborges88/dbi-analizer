@@ -1,0 +1,83 @@
+{
+    "records": [
+        {
+            "entropy": 3.550975415840251,
+            "name": "PE Header",
+            "offset": 0,
+            "size": 1024,
+            "status": "not packed"
+        },
+        {
+            "entropy": 6.45503625843408,
+            "name": "Section(0)['.text']",
+            "offset": 1024,
+            "size": 937984,
+            "status": "not packed"
+        },
+        {
+            "entropy": 4.910604853573764,
+            "name": "Section(1)['.rdata']",
+            "offset": 939008,
+            "size": 316928,
+            "status": "not packed"
+        },
+        {
+            "entropy": 4.054219907916959,
+            "name": "Section(2)['.data']",
+            "offset": 1255936,
+            "size": 24064,
+            "status": "not packed"
+        },
+        {
+            "entropy": 5.964480521759291,
+            "name": "Section(3)['.pdata']",
+            "offset": 1280000,
+            "size": 36864,
+            "status": "not packed"
+        },
+        {
+            "entropy": 2.9744648862333003,
+            "name": "Section(4)['.detourc']",
+            "offset": 1316864,
+            "size": 27136,
+            "status": "not packed"
+        },
+        {
+            "entropy": 0.2757886216658061,
+            "name": "Section(5)['.detourd']",
+            "offset": 1344000,
+            "size": 512,
+            "status": "not packed"
+        },
+        {
+            "entropy": 2.448275207954745,
+            "name": "Section(6)['_RDATA']",
+            "offset": 1344512,
+            "size": 512,
+            "status": "not packed"
+        },
+        {
+            "entropy": 4.199944933271732,
+            "name": "Section(7)['.rsrc']",
+            "offset": 1345024,
+            "size": 1328640,
+            "status": "not packed"
+        },
+        {
+            "entropy": 5.391417933112111,
+            "name": "Section(8)['.reloc']",
+            "offset": 2673664,
+            "size": 9728,
+            "status": "not packed"
+        },
+        {
+            "entropy": 7.493408684161884,
+            "name": "Overlay",
+            "offset": 2683392,
+            "size": 10128,
+            "status": "packed"
+        }
+    ],
+    "status": "not packed",
+    "total": 5.510241544363705
+}

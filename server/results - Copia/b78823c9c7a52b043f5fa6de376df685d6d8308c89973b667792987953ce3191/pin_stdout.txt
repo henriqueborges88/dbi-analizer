@@ -1,0 +1,5 @@
+
+EFS Information Dumper v1.02
+Copyright (C) 1999 Mark Russinovich
+Systems Internals - http://www.sysinternals.com
+

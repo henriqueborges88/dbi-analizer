@@ -1,0 +1,55 @@
+{
+    "records": [
+        {
+            "entropy": 2.6997057244223073,
+            "name": "PE Header",
+            "offset": 0,
+            "size": 1024,
+            "status": "not packed"
+        },
+        {
+            "entropy": 6.612249205003218,
+            "name": "Section(0)['.text']",
+            "offset": 1024,
+            "size": 86016,
+            "status": "packed"
+        },
+        {
+            "entropy": 4.67495147397225,
+            "name": "Section(1)['.rdata']",
+            "offset": 87040,
+            "size": 50176,
+            "status": "not packed"
+        },
+        {
+            "entropy": 3.3862403111345514,
+            "name": "Section(2)['.data']",
+            "offset": 137216,
+            "size": 5120,
+            "status": "not packed"
+        },
+        {
+            "entropy": 6.366199174130895,
+            "name": "Section(3)['.rsrc']",
+            "offset": 142336,
+            "size": 125440,
+            "status": "not packed"
+        },
+        {
+            "entropy": 6.437402740667218,
+            "name": "Section(4)['.reloc']",
+            "offset": 267776,
+            "size": 5632,
+            "status": "not packed"
+        },
+        {
+            "entropy": 7.428296959157141,
+            "name": "Overlay",
+            "offset": 273408,
+            "size": 16040,
+            "status": "packed"
+        }
+    ],
+    "status": "not packed",
+    "total": 6.451295460772154
+}

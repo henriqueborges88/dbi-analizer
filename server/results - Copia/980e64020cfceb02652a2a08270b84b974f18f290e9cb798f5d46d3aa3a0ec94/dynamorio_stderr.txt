@@ -1,0 +1,1 @@
+ERROR: application has bitwidth unsupported by this launcher

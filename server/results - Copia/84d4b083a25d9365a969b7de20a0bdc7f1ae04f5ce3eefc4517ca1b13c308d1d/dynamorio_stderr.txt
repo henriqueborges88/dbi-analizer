@@ -1,0 +1,35 @@
+---- <application exited with code -1073741819> ----
+Basic counts tool results:
+Total counts:
+        4848 total (fetched) instructions
+         685 total unique (fetched) instructions
+           0 total non-fetched instructions
+           0 total prefetches
+        1034 total data loads
+         749 total data stores
+           0 total icache flushes
+           0 total dcache flushes
+           1 total threads
+         354 total scheduling markers
+           1 total transfer markers
+           0 total function id markers
+           0 total function return address markers
+           0 total function argument markers
+           0 total function return value markers
+           3 total other markers
+Thread 0 counts:
+        4848 (fetched) instructions
+         685 unique (fetched) instructions
+           0 non-fetched instructions
+           0 prefetches
+        1034 data loads
+         749 data stores
+           0 icache flushes
+           0 dcache flushes
+         354 scheduling markers
+           1 transfer markers
+           0 function id markers
+           0 function return address markers
+           0 function argument markers
+           0 function return value markers
+           3 other markers
