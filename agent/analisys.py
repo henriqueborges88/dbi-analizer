@@ -2,7 +2,7 @@ import json
 import os
 # from run_inst_pyqbdi import run_pyqbdi
 from run_inst_dynamorio import run_dynamorio
-from utils import calculate_sha256_hash, compress_folder
+from utils import calculate_sha256_hash, compress_folder, instr_proc_task_kill
 from sample_data import SampleUploader
 from run_die import run_die
 from run_floss import run_floss
@@ -65,17 +65,17 @@ def process(result_server_ip="localhost"):
         except Exception as e:
             print(e)
 
-        # try:
-        #     die_out = os.path.join(out_dir, "die_out.json")
-        #     run_die(file, die_out)
-        # except Exception as e:
-        #     print(e)
+        try:
+            die_out = os.path.join(out_dir, "die_out.json")
+            run_die(file, die_out)
+        except Exception as e:
+            print(e)
             
-        # try:
-        #     floss_out = os.path.join(out_dir, "strings_out.json")
-        #     run_floss(file, floss_out)
-        # except Exception as e:
-        #     print(e)
+        try:
+            floss_out = os.path.join(out_dir, "strings_out.json")
+            run_floss(file, floss_out)
+        except Exception as e:
+            print(e)
         
         # try:
         #     run_vivisect(file, out_dir)
@@ -83,30 +83,24 @@ def process(result_server_ip="localhost"):
         #     print(e)
             
         try:
-            
             run_pin(file, architecture, out_dir)
         except Exception as e:
             print(e)
         
-        # try:
-        #     pin_out = os.path.join(out_dir, "frida_out.txt")
-        #     run_frida(file, pin_out)
-        # except Exception as e:
-        #     print(e)
+        try:
+            frida_out = os.path.join(out_dir, "frida_out.txt")
+            run_frida(file, frida_out)
+        except Exception as e:
+            print(e)
 
-        # try:
-        #     dynamorio_out = os.path.join(out_dir, "dynamorio_out.txt")
-        #     run_dynamorio(file, architecture, dynamorio_out)
-        # except Exception as e:
-        #     print(e)
-    
-            
-        # try:
-        #     pyqbdi_out = os.path.join(out_dir, "pyqbdi_out.json")
-        #     run_pyqbdi(file, pyqbdi_out)
-        # except Exception as e:
-        #     print(e)
+        try:
+            run_dynamorio(file, architecture, out_dir)
+        except Exception as e:
+            print(e)
         
+        target_file_name = os.path.basename(file)
+        instr_proc_task_kill(target_file_name, True)
+
         zip_file = f"compressed/{hash}.zip"
         compress_folder(out_dir, zip_file)
         
