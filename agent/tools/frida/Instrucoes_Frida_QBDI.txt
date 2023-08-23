@@ -1,0 +1,5 @@
+Instalar o NPM
+Instalar o frida-compile -> npm install frida-compile babelify
+baixar o frida-qbdi.js -> https://github.com/QBDI/QBDI/blob/master/tools/frida-qbdi.js
+Colocar o  na mesma pasta do codio a ser compilado
+Compilar -> .\node_modules\.bin\frida-compile qbdi.js -o qbdiCompiled.js
