@@ -1,8 +1,6 @@
 @echo off
-python -m venv venv
+cd %~dp0
 call venv\Scripts\activate
-pip install -r requirements.txt
-
 set /p server_ip=<server_ip.txt
-
-python analisys.py %server_ip%
+python analisys.py %server_ip% shutdown
+shutdown /s /t 0

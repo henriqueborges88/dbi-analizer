@@ -1,5 +1,0 @@
-
-Clockres v2.1 - Clock resolution display utility
-Copyright (C) 2016 Mark Russinovich
-Sysinternals
-

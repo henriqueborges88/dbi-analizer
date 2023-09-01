@@ -1,5 +1,0 @@
-
-SDelete v2.04 - Secure file delete
-Copyright (C) 1999-2019 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

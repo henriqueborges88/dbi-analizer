@@ -1,5 +1,0 @@
-
-AdRestore v1.2
-by Mark Russinovich
-Sysinternals - www.sysinternals.com
-

@@ -1,19 +1,10 @@
 import shutil
 import os
 import zipfile
+import socket
 
 def compress_folder(source_folder, zip_file):
-    with zipfile.ZipFile(zip_file, "w", zipfile.ZIP_STORED) as zipf: # zipfile.ZIP_DEFLATED -> compacta
-        for current_folder, _, files in os.walk(source_folder):
-            for file in files:
-                full_path = os.path.join(current_folder, file)
-
-                relative_path = os.path.relpath(full_path, source_folder)
-
-                zipf.write(full_path, relative_path)
-
-
-import socket
+    shutil.make_archive(os.path.splitext(zip_file)[0], 'zip', source_folder)
 
 def list_ips():
     # Get the local host name

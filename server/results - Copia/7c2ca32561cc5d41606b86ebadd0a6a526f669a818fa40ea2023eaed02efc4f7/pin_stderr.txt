@@ -1,3 +1,0 @@
-__bionic_open_tzdata_path: PIN_CRT_TZDATA not set!
-__bionic_open_tzdata_path: PIN_CRT_TZDATA not set!
-__bionic_open_tzdata_path: PIN_CRT_TZDATA not set!

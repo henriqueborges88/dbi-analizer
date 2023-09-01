@@ -1,5 +1,0 @@
-
-Sync v2.2 - Flush cached data to disk.
-Copyright (C) 2016 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

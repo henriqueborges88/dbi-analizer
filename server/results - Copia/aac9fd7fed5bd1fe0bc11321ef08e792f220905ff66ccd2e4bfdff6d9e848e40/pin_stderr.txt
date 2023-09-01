@@ -1,5 +1,0 @@
-
-Loadord v1.02 - Startup order viewer
-Copyright (C) 1998-2021 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

@@ -1,5 +1,0 @@
-
-Contig v1.81 - Contig
-Copyright (C) 2001-2021 Mark Russinovich
-Sysinternals
-

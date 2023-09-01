@@ -1,7 +1,0 @@
-
-PsKill v1.16 - Terminates processes on local or remote systems
-Copyright (C) 1999-2016  Mark Russinovich
-Sysinternals - www.sysinternals.com
-
-Eula declined.
-

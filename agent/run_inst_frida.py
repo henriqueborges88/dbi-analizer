@@ -14,7 +14,7 @@ def run_frida(file, out):
     instrumentation_errors = []
     functions_user32 = []
 
-    frida_tool_path = os.path.abspath("./tools/frida/exports_user32.js") # ilenmix
+    frida_tool_path = os.path.abspath("./tools/frida/exports_user32.js") 
 
     file_name = os.path.basename(file)
     sample_proc = Popen(f"{file}", shell=True, stdout=PIPE, stderr=PIPE)

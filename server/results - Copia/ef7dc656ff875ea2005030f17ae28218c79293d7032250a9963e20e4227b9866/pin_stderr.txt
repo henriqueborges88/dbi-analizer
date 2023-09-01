@@ -1,5 +1,0 @@
-
-Sysinternals Autoruns v14.09 - Autostart program viewer
-Copyright (C) 2002-2022 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

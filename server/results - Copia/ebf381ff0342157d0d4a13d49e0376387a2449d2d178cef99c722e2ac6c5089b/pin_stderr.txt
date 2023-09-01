@@ -1,5 +1,0 @@
-
-Sigcheck v2.82 - File version and signature viewer
-Copyright (C) 2004-2021 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

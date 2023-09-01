@@ -1,5 +1,0 @@
-
-Findlinks v1.1 - Locate file hard links
-Copyright (C) 2011-2016 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

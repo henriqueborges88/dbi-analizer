@@ -1,5 +1,0 @@
-
-PendMoves v1.3 - Lists pending delayed movefile operations
-Copyright (C) 2004-2016 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

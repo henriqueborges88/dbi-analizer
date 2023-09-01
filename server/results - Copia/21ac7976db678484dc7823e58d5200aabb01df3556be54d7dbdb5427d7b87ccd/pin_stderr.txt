@@ -1,5 +1,0 @@
-
-DiskExt v1.2 - Disk extent dumper
-Copyright (C) 2001-2016 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

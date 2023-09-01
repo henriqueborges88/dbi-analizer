@@ -1,5 +1,0 @@
-
-Strings v2.54 - Search for ANSI and Unicode strings in binary images.
-Copyright (C) 1999-2021 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

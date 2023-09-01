@@ -1,5 +1,0 @@
-
-MoveFile v1.02 - Creates pending movefile operations
-Copyright (C) 2001-2016 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

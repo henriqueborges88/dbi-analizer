@@ -1,1 +1,0 @@
-ERROR: failed to create process for "C:\Users\Usuário\Downloads\agent\in\disk2vhd64.exe"

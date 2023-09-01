@@ -1,5 +1,0 @@
-
-PipeList v1.02 - Lists open named pipes
-Copyright (C) 2005-2016 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

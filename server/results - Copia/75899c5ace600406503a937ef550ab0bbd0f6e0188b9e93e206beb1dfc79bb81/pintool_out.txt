@@ -1,5 +1,0 @@
-Count[1] = 3235371
-Count[2] = 25834
-Count[3] = 18930
-Count[0] = 33541482
-Number of threads ever exist = 4

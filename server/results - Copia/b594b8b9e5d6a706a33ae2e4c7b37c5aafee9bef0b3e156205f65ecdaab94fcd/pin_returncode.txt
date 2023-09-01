@@ -1,3 +1,0 @@
-{
-    "pin_returncode": 0
-}

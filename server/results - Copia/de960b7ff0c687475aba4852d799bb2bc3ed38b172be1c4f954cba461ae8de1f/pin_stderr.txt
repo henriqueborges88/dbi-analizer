@@ -1,5 +1,0 @@
-
-Nthandle v4.22 - Handle viewer
-Copyright (C) 1997-2019 Mark Russinovich
-Sysinternals - www.sysinternals.com
-

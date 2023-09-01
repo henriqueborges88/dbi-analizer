@@ -1,3 +1,0 @@
-{
-    "dynamorio_returncode": 0
-}

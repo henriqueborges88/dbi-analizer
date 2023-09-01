@@ -1,5 +1,0 @@
-
-Tcpvcon.exe v4.17 - Sysinternals TcpVcon
-Copyright (C) 1996-2022 Mark Russinovich & Bryce Cogswell
-Sysinternals - www.sysinternals.com
-

@@ -1,5 +1,0 @@
-
-Listdlls v3.2 - Listdlls
-Copyright (C) 1997-2016 Mark Russinovich
-Sysinternals
-
