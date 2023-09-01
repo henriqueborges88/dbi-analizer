@@ -16,37 +16,54 @@ def save_json(dict, path):
     with open(path, 'w') as json_file:
         json.dump(dict, json_file, indent = 4, sort_keys=True)
 
-def process(result_server_ip="localhost"):
-        
-    path_analisys = os.path.abspath("./in/")
-    path_processed = os.path.abspath("./out/")
+def process(result_server_ip="localhost", action=None):
+    try:        
+        path_analisys = os.path.abspath("./in/")
+        path_processed = os.path.abspath("./out/")
+        path_compressed = os.path.abspath("./compressed/")
 
-    sample_uploader = SampleUploader(base_url=f"http://{result_server_ip}:5000")
-    samples = sample_uploader.get_sample_list()
-    print("Amostras processadas", len(samples))
+        if not os.path.exists(path_processed):
+            os.mkdir(path_processed)
 
-    list_dir = os.listdir(path_analisys)
-    for index, filename in enumerate(list_dir):
-        file = os.path.join(path_analisys, filename)
-        if not os.path.isfile(file):
-            continue
-        file_name = os.path.basename(file)
-        hash = calculate_sha256_hash(file)
+        if not os.path.exists(path_compressed):
+            os.mkdir(path_compressed)
+            
+        sample_uploader = SampleUploader(base_url=f"http://{result_server_ip}:5000")
+        samples = sample_uploader.get_sample_list()
+        #print("Amostras processadas", len(samples))
 
+        list_dir = os.listdir(path_analisys)
+        for index, filename in enumerate(list_dir):
+            file = os.path.join(path_analisys, filename)
+            if not os.path.isfile(file):
+                continue
+
+            file_name = os.path.basename(file)
+            hash = calculate_sha256_hash(file)
+
+            out_dir = os.path.join(path_processed, hash)
+            
+            sample_isprocessed = list(filter(lambda x: x["sample_hash_sha256"] == hash, samples)) and True or False
+            if sample_isprocessed:
+                file = None
+                continue
+            break
+
+        if file == None:
+            print("Análise concluída.")
+            exit(0)
+
+        print('Processando o arquivo ' + str(index + 1) + ' de ' + str(len(list_dir)))
+
+        # Registrar o arquivo antes de analisar, se a análise falhar em algum ponto evitará que o arquivo seja analisado novamente 
         sample_uploader.register_sample(hash)
-        
-        out_dir = os.path.join(path_processed, hash)
-        
+
         file_info = {
             "file_name": file_name,
             "hash": hash,
             "out_dir": out_dir,
             "in_dir": file
         }
-
-        sample_isprocessed = list(filter(lambda x: x["sample_hash_sha256"] == hash, samples)) and True or False
-        if sample_isprocessed:
-            continue
 
         print("Analizando arquivo", file_name)
 
@@ -77,10 +94,10 @@ def process(result_server_ip="localhost"):
         except Exception as e:
             print(e)
         
-        # try:
-        #     run_vivisect(file, out_dir)
-        # except Exception as e:
-        #     print(e)
+        try:
+            run_vivisect(file, out_dir)
+        except Exception as e:
+            print(e)
             
         try:
             run_pin(file, architecture, out_dir)
@@ -101,20 +118,31 @@ def process(result_server_ip="localhost"):
         target_file_name = os.path.basename(file)
         instr_proc_task_kill(target_file_name, True)
 
-        zip_file = f"compressed/{hash}.zip"
+        zip_file = os.path.join(path_compressed,  f"{hash}.zip")
         compress_folder(out_dir, zip_file)
         
         sample_uploader.upload_sample_data_file(zip_file, hash)
-
-        print('Processado ' + str(index + 1) + ' de ' + str(len(list_dir)))
+        
+    finally:
+        if os.name == 'nt':   # Para Windows
+            if action == 'restart':
+                os.system("shutdown /r /t 0")
+            elif action == 'shutdown':
+                os.system("shutdown /s /t 0")
+            elif action == 'exit-script':
+                exit(0)
+            else:
+                print("Ação não enviada.")
 
 def main():
-    if len(sys.argv) < 1:
-        print("Uso: python script.py ip do serviço que registrará os resultados...")
+    if len(sys.argv) < 2:
+        print("Uso: python script.py <ip_do_serviço> <acao_post_execucao>")
+        print("Onde <acao_post_execucao> pode ser 'restart', 'shutdown' ou 'exit-script'.")
         return
 
     result_server_ip = sys.argv[1]
-    process(result_server_ip)
+    action = sys.argv[2]
+    process(result_server_ip, action)
 
 if __name__ == "__main__":
     main()
