@@ -32,6 +32,14 @@ class pe_encoder(json.JSONEncoder):
 
 
 def run_pe(filepath, out, pretty):
+    print("Executando PEFile")
+
+    out_dir = os.path.join(out, "pefile")
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+    
+    out_path = os.path.join(out_dir, "pefile.json")
+
     pe = pefile.PE(filepath)
     pe.parse_data_directories( directories=[         
         pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXPORT'],
@@ -93,10 +101,10 @@ def run_pe(filepath, out, pretty):
  
     # Make a json file
     if (pretty is True):
-        with open(out, 'w') as json_file:
+        with open(out_path, 'w') as json_file:
             json.dump(pe_dict, json_file, cls=pe_encoder, sort_keys=False, indent=4)
     else:
-        with open(out, 'w') as json_file:
+        with open(out_path, 'w') as json_file:
             json.dump(pe_dict, json_file, cls=pe_encoder, sort_keys=False)
 
     pe.close()

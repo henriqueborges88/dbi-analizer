@@ -6,6 +6,12 @@ from time import sleep
 from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
 
 def run_pin(file, architecture, out_dir):
+    print("Executando Pin")
+    
+    out_dir = os.path.join(out_dir, "pin")
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+    
     pin_run_data_path = os.path.join(out_dir, "pin_run_data.txt")
     pin_log_path = os.path.join(out_dir, "pin_log.txt")
     pin_error_path = os.path.join(out_dir, "pin_error.txt")

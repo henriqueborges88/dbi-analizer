@@ -6,6 +6,12 @@ from time import sleep
 from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
 
 def run_dynamorio(file, architecture, out_dir):
+    print("Executando Dynamorio")
+    
+    out_dir = os.path.join(out_dir, "dynamorio")
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+
     dynamorio_run_data_path = os.path.join(out_dir, "dynamorio_run_data.txt")
     dynamorio_stderr_path = os.path.join(out_dir, 'dynamorio_stderr.txt')
     dynamorio_stdout_path = os.path.join(out_dir, 'dynamorio_stdout.txt')

@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import vivisect
 def run_vivisect(file_path, out_dir):
+    print("Executando Vivisect")
     vw = vivisect.VivWorkspace(confdir="ws", autosave=True)
     vw.loadFromFile(file_path)
     res = vw.analyze()

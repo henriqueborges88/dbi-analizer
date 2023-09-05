@@ -71,26 +71,23 @@ def process(result_server_ip="localhost", action=None):
             os.mkdir(out_dir)
 
         try:
-            save_out = os.path.join(out_dir, "info_out.json")
+            save_out = os.path.join(out_dir, "file_info.json")
             save_json(file_info, save_out)
         except Exception as e:
             print(e)
 
         try:
-            pe_out = os.path.join(out_dir, "pe_out.json")
-            architecture = run_pe(file, pe_out, True)
+            architecture = run_pe(file, out_dir, True)
         except Exception as e:
             print(e)
 
         try:
-            die_out = os.path.join(out_dir, "die_out.json")
-            run_die(file, die_out)
+            run_die(file, out_dir)
         except Exception as e:
             print(e)
             
         try:
-            floss_out = os.path.join(out_dir, "strings_out.json")
-            run_floss(file, floss_out)
+            run_floss(file, out_dir)
         except Exception as e:
             print(e)
         
@@ -105,8 +102,7 @@ def process(result_server_ip="localhost", action=None):
             print(e)
         
         try:
-            frida_out = os.path.join(out_dir, "frida_out.txt")
-            run_frida(file, frida_out)
+            run_frida(file, out_dir)
         except Exception as e:
             print(e)
 

@@ -10,7 +10,14 @@ from time import sleep
 
 
 def run_frida(file, out):
+    print("Executando Frida")
+
+    out_dir = os.path.join(out, "frida")
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
     
+    out_path = os.path.join(out_dir, "frida.json")
+
     instrumentation_errors = []
     functions_user32 = []
 
@@ -79,5 +86,5 @@ def run_frida(file, out):
             "instrumentation_errors": instrumentation_errors
         }
 
-    with open(out, 'w') as json_file:
+    with open(out_path, 'w') as json_file:
         json.dump(frida_dict, json_file, sort_keys=False, indent=4)
