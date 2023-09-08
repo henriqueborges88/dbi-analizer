@@ -1,8 +1,15 @@
 import json
 from pathlib import Path
 import vivisect
-def run_vivisect(file_path, out_dir):
+import os
+
+def run_vivisect(file_path, out):
     print("Executando Vivisect")
+
+    out_dir = os.path.join(out, "die")
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+    
     vw = vivisect.VivWorkspace(confdir="ws", autosave=True)
     vw.loadFromFile(file_path)
     res = vw.analyze()
@@ -55,11 +62,10 @@ def run_vivisect(file_path, out_dir):
     #     getVaSetRows = vw.getVaSetRows(VaSet)
     #     getVaSet = vw.getVaSet(VaSet)
 
-    out_path = Path(out_dir)
-    res_vivisect_path = Path.joinpath(out_path, "vivisect.viv")
-    res_vivisect_json_path = Path.joinpath(out_path, "vivisect.json")
-    
-    vw.saveWorkspace(True, str(res_vivisect_path))
+    res_vivisect_path = os.path.join(out_dir, "vivisect.viv")
+    res_vivisect_json_path = os.path.join(out_dir, "vivisect.json")
+
+    vw.saveWorkspace(True, res_vivisect_path)
     with open(res_vivisect_json_path, "w") as file:
         json.dump(analysis_result, file)
 

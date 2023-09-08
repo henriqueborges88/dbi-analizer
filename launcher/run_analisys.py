@@ -3,7 +3,7 @@ import time
 
 VBOXMANAGE_PATH = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
 VM_NAME = "e327684c-b70c-41a1-a52e-d6afeb96ee56"
-SNAPSHOT_NAME = "analise_de_malwares_2"
+SNAPSHOT_NAME = "analise_de_malwares_3"
 TIMEOUT = 5
 
 while True:
