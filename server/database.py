@@ -1,10 +1,11 @@
 import os
 import sqlite3
 
-db_name = "malware_data.db"
-def create_table():
+DB_NAME = "malware_data.db"
+
+def create_samples_table():
    
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     # Criar a tabela se ainda não existir
@@ -19,8 +20,10 @@ def create_table():
     conn.commit()
     conn.close()
 
+
+
 def insert_sample(sample_hash_sha256):
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     # Inserir o novo registro na tabela
@@ -30,7 +33,7 @@ def insert_sample(sample_hash_sha256):
     conn.close()
 
 def update_sample_status(sample_hash_sha256, new_status):
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     # Executar a atualização
@@ -42,7 +45,7 @@ def update_sample_status(sample_hash_sha256, new_status):
 
 
 def get_samples():
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     cursor.execute('SELECT * FROM samples')
@@ -61,11 +64,59 @@ def get_samples():
     return samples
 
 def remove_all_records():
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     # Remover todos os registros da tabela
     cursor.execute('DELETE FROM samples')
 
     conn.commit()
+    conn.close()
+    
+    
+def create_config_table():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    # Criar a tabela se ainda não existir
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS config (
+            config_name TEXT NOT NULL,
+            config_value TEXT
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+
+
+def get_config(config_name):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM config WHERE config_name = ?', (config_name,))
+    existing_record = cursor.fetchone()
+    conn.close()
+
+    if existing_record is None:
+        return None
+    else:
+        return existing_record[1]
+
+
+def update_config(config_name, config_value):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM config WHERE config_name = ?', (config_name,))
+    existing_record = cursor.fetchone()
+
+    if existing_record is None:
+        cursor.execute('INSERT INTO config (config_name, config_value) VALUES (?, ?)', (config_name, config_value))
+        conn.commit()
+    else:
+        cursor.execute('UPDATE config SET config_value = ? WHERE config_name = ?', (config_value, config_name))
+        conn.commit()
+
     conn.close()

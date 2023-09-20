@@ -50,6 +50,7 @@ def process(result_server_ip="localhost", action=None):
             break
 
         if file == None:
+            sample_uploader.disable_analisys()
             print("Análise concluída.")
             exit(0)
 

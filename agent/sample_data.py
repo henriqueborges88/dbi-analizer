@@ -37,3 +37,8 @@ class SampleUploader:
             print('Arquivo enviado com sucesso e registrado no banco de dados.')
         else:
             print('Erro ao enviar o arquivo.')
+    
+    def disable_analisys(self):
+        url = f'{self.base_url}/disable-analisys'
+
+        response = requests.get(url)
