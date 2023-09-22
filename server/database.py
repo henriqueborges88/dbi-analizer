@@ -22,15 +22,32 @@ def create_samples_table():
 
 
 
-def insert_sample(sample_hash_sha256):
+def check_if_sample_exists(sample_hash_sha256):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
-    # Inserir o novo registro na tabela
-    cursor.execute('INSERT INTO samples (sample_hash_sha256) VALUES (?)', (sample_hash_sha256,))
+    # Verificar se o hash já existe na tabela
+    cursor.execute('SELECT COUNT(*) FROM samples WHERE sample_hash_sha256 = ?', (sample_hash_sha256,))
+    count = cursor.fetchone()[0]
 
-    conn.commit()
     conn.close()
+
+    return count > 0
+
+def insert_sample(sample_hash_sha256):
+    if not check_if_sample_exists(sample_hash_sha256):
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        # Inserir o novo registro na tabela
+        cursor.execute('INSERT INTO samples (sample_hash_sha256) VALUES (?)', (sample_hash_sha256,))
+
+        conn.commit()
+        conn.close()
+        print(f"Hash '{sample_hash_sha256}' inserido com sucesso.")
+    else:
+        print(f"Hash '{sample_hash_sha256}' já existe na tabela e não será inserido.")
+
 
 def update_sample_status(sample_hash_sha256, new_status):
     conn = sqlite3.connect(DB_NAME)

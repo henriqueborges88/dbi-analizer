@@ -13,7 +13,7 @@ def run_floss(file_path, out):
 
     floss_path = os.path.abspath("./tools/floss.exe") 
     res_path = Path(out_path)
-    p = subprocess.run(f'{floss_path} --no stack tight -j "{file_path}"', shell=True, check=True, capture_output=True)
+    p = subprocess.run(f'{floss_path} --only static -j "{file_path}"', shell=True, check=True, capture_output=True)
     with res_path.open("w") as f:
         f.write(p.stdout.decode("utf-8"))
     return str(res_path)

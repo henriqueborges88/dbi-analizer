@@ -6,7 +6,7 @@ import os
 def run_vivisect(file_path, out):
     print("Executando Vivisect")
 
-    out_dir = os.path.join(out, "die")
+    out_dir = os.path.join(out, "vivisec")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     

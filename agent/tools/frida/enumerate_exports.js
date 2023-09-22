@@ -1,6 +1,6 @@
 Process.enumerateModulesSync()
     .forEach(function(m) {
-        Module.enumerateExports(module.name, {
+        Module.enumerateExports(m.name, {
             onMatch: function (exp) {
                 send(`{ "name": "${exp.name}", "address": "${exp.address}" }`);
             },
