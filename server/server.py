@@ -68,6 +68,9 @@ def create_app():
     def download_agent():
         folder_path = '../agent' 
         temp_dir = "tmp"
+        if not os.path.exists(temp_dir):
+            os.mkdir(temp_dir)
+        
         output_filename = os.path.join(temp_dir, 'agent.zip')
 
         if not os.path.exists(output_filename):

@@ -1,8 +1,7 @@
 import json
 import os
 import re
-from subprocess import Popen, getoutput, PIPE, STDOUT
-from time import sleep
+from subprocess import Popen
 from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
 
 def run_dynamorio(file, architecture, out_dir):
@@ -26,19 +25,24 @@ def run_dynamorio(file, architecture, out_dir):
     
     target_file_name = os.path.basename(file)
     
-    with open(dynamorio_stdout_path, 'w') as output_file, open(dynamorio_stderr_path, 'w') as error_file:
-        dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 40 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file}\"", shell=True, stdout=output_file, stderr=error_file)
-    
-    wait_until_finish(dynamorio_proc)
+    dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 40 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file}\"", shell=True)
+
+    wait_until_finish(dynamorio_proc, timeout=15)
     instr_proc_task_kill(target_file_name)
     instr_proc_task_kill(target_file_name, True)
     wait_until_finish(dynamorio_proc, timeout=5)
     proc_kill_force(dynamorio_proc)
-    Popen(f"\"{drkill_path}\" -underdr", shell=True, stdout=PIPE, stderr=PIPE)
+    Popen(f"\"{drkill_path}\" -underdr", shell=True)
     
+    stdout, stderr = dynamorio_proc.communicate()
+    with open(dynamorio_stdout_path, 'w') as output_file, open(dynamorio_stderr_path, 'w') as error_file:
+        output_file.write(stdout.decode())
+        error_file.write(stderr.decode())
        
     with open(dynamorio_stderr_path, 'r') as file:
         text = file.read()
+        
+    dynamorio_tool_success = False
 
     if "Basic counts tool results:" in text:
         dynamorio_tool_success = True

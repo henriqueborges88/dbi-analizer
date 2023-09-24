@@ -19,7 +19,7 @@ def run_pin(file, architecture, out_dir):
     pin_stderr_path = os.path.join(out_dir, 'pin_stderr.txt')
     pin_stdout_path = os.path.join(out_dir, 'pin_stdout.txt')
     target_file_name = os.path.basename(file)
-    pintool = "inscount2_mt.dll"
+    pintool = "calltrace.dll" #"inscount2_mt.dll"
     
     if architecture == "32 bits":
         pin_path = os.path.abspath("./tools/pin-3.28-msvc-windows/ia32/bin/pin.exe")
@@ -32,12 +32,12 @@ def run_pin(file, architecture, out_dir):
     
     with open(pin_stdout_path, 'w') as output_file, open(pin_stderr_path, 'w') as error_file:
         pin_proc = Popen(f"\"{pin_path}\" -logfile \"{pin_log_path}\" -error_file \"{pin_error_path}\" -t \"{pin_tool_path}\" -o \"{pintool_out_path}\" -- \"{file}\"", shell=True, stdout=output_file, stderr=error_file)
-    
-    wait_until_finish(pin_proc)
-    instr_proc_task_kill(target_file_name)
-    instr_proc_task_kill(target_file_name, True)
-    wait_until_finish(pin_proc, timeout=5)
-    proc_kill_force(pin_proc)
+        
+        wait_until_finish(pin_proc, timeout=10)
+        instr_proc_task_kill(target_file_name)
+        instr_proc_task_kill(target_file_name, True)
+        wait_until_finish(pin_proc, timeout=5)
+        proc_kill_force(pin_proc)
 
     pattern = r'Count\[(\d+)\]\s*=\s*(\d+)'
 

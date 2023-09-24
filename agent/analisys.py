@@ -17,7 +17,8 @@ def save_json(dict, path):
         json.dump(dict, json_file, indent = 4, sort_keys=True)
 
 def process(result_server_ip="localhost", action=None):
-    try:        
+    try:       
+        file_path = None 
         path_analisys = os.path.abspath("./in/")
         path_processed = os.path.abspath("./out/")
         path_compressed = os.path.abspath("./compressed/")
