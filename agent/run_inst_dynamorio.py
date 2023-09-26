@@ -2,6 +2,7 @@ import json
 import os
 import re
 from subprocess import Popen
+from time import sleep
 from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
 
 def run_dynamorio(file, architecture, out_dir):
@@ -12,6 +13,7 @@ def run_dynamorio(file, architecture, out_dir):
         os.mkdir(out_dir)
 
     dynamorio_run_data_path = os.path.join(out_dir, "dynamorio_run_data.txt")
+    dynamorio_tool_path = os.path.join(out_dir, 'dynamorio_tool_out.txt')
     dynamorio_stderr_path = os.path.join(out_dir, 'dynamorio_stderr.txt')
     dynamorio_stdout_path = os.path.join(out_dir, 'dynamorio_stdout.txt')
     if architecture == "32 bits":
@@ -25,7 +27,7 @@ def run_dynamorio(file, architecture, out_dir):
     
     target_file_name = os.path.basename(file)
     
-    dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 40 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file}\"", shell=True)
+    dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 40 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file}\" > {dynamorio_tool_path} 2>&1", shell=True)
 
     wait_until_finish(dynamorio_proc, timeout=15)
     instr_proc_task_kill(target_file_name)
@@ -33,13 +35,14 @@ def run_dynamorio(file, architecture, out_dir):
     wait_until_finish(dynamorio_proc, timeout=5)
     proc_kill_force(dynamorio_proc)
     Popen(f"\"{drkill_path}\" -underdr", shell=True)
+    sleep(2)
     
     stdout, stderr = dynamorio_proc.communicate()
     with open(dynamorio_stdout_path, 'w') as output_file, open(dynamorio_stderr_path, 'w') as error_file:
         output_file.write(stdout.decode())
         error_file.write(stderr.decode())
        
-    with open(dynamorio_stderr_path, 'r') as file:
+    with open(dynamorio_tool_path, 'r') as file:
         text = file.read()
         
     dynamorio_tool_success = False
