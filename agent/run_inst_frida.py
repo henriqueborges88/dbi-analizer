@@ -86,5 +86,7 @@ def run_frida(file, out):
             "instrumentation_errors": instrumentation_errors
         }
 
+    print("[frida] Instrumentaçao concluida")
+
     with open(out_path, 'w') as json_file:
         json.dump(frida_dict, json_file, sort_keys=False, indent=4)

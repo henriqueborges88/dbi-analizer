@@ -3,9 +3,6 @@ Process.enumerateModulesSync()
         Module.enumerateExports(m.name, {
             onMatch: function (exp) {
                 send(`{ "name": "${exp.name}", "address": "${exp.address}" }`);
-            },
-            onComplete: function () {
-                console.log('[Frida] Instrumentacao concluida.');
             }
         });
     });
