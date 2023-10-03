@@ -11,13 +11,15 @@ from run_vivisect import run_vivisect
 from run_inst_pin import run_pin
 from run_inst_frida import run_frida
 import sys
+from timer import Timer
 
 def save_json(dict, path):
     with open(path, 'w') as json_file:
         json.dump(dict, json_file, indent = 4, sort_keys=True)
 
 def process(result_server_ip="localhost", action=None):
-    try:       
+    try:
+        timer = Timer()
         file_path = None 
         path_analisys = os.path.abspath("./in/")
         path_processed = os.path.abspath("./out/")
@@ -68,24 +70,11 @@ def process(result_server_ip="localhost", action=None):
         file_name = os.path.basename(file_path)
         file_size = os.path.getsize(file_path)
 
-        file_info = {
-            "file_name": file_name,
-            "file_size": file_size,
-            "hash": hash,
-            "out_dir": out_dir,
-            "in_dir": file_path
-        }
-
         print("Analizando arquivo", file_name)
 
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
-        try:
-            save_out = os.path.join(out_dir, "file_info.json")
-            save_json(file_info, save_out)
-        except Exception as e:
-            print(e)
 
         try:
             architecture = run_pe(file_path, out_dir, True)
@@ -132,6 +121,23 @@ def process(result_server_ip="localhost", action=None):
         
     finally:
         try:
+            timer.stop()
+            
+            file_info = {
+                "file_name": file_name,
+                "file_size": file_size,
+                "hash": hash,
+                "out_dir": out_dir,
+                "in_dir": file_path,
+                "execution_time": timer.formatted_time(),
+                "execution_timedelta": timer.as_timedelta()
+            }
+
+            try:
+                save_out = os.path.join(out_dir, "file_info.json")
+                save_json(file_info, save_out)
+            except Exception as e:
+                print(e)
             sample_uploader.register_sample(hash)
         except:
             pass

@@ -7,11 +7,11 @@ import json
 import re
 from subprocess import Popen, getoutput, PIPE, STDOUT
 from time import sleep
-
+from timer import Timer
 
 def run_frida(file, out):
     print("Executando Frida")
-
+    timer = Timer()
     out_dir = os.path.join(out, "frida")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -62,6 +62,7 @@ def run_frida(file, out):
     proc_kill_force(sample_proc)
     
     session.detach()
+    timer.stop()
 
     try:
         sample_out, sample_error = sample_proc.communicate()
@@ -74,7 +75,9 @@ def run_frida(file, out):
             "returncode": sample_proc.returncode,
             "has_error": sample_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
             "functions_user32": functions_user32,
-            "instrumentation_errors": instrumentation_errors
+            "instrumentation_errors": instrumentation_errors,
+            "execution_time": timer.formatted_time(),
+            "execution_timedelta": timer.as_timedelta()
         }
     except Exception as ex:
         frida_dict = {
@@ -83,7 +86,9 @@ def run_frida(file, out):
             "returncode": sample_proc.returncode,
             "has_error": sample_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
             "functions_user32": functions_user32,
-            "instrumentation_errors": instrumentation_errors
+            "instrumentation_errors": instrumentation_errors,
+            "execution_time": timer.formatted_time(),
+            "execution_timedelta": timer.as_timedelta()
         }
 
     print("[frida] Instrumentaçao concluida")

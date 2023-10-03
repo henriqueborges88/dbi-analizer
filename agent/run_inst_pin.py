@@ -4,10 +4,11 @@ import re
 from subprocess import Popen, getoutput
 from time import sleep
 from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
+from timer import Timer
 
 def run_pin(file, architecture, out_dir):
     print("Executando Pin")
-    
+    timer = Timer()
     out_dir = os.path.join(out_dir, "pin")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -49,6 +50,8 @@ def run_pin(file, architecture, out_dir):
     if len(matches):
         pin_tool_success = True
 
+    timer.stop()
+
     try:
         returncode = pin_proc.returncode
     except:
@@ -56,7 +59,9 @@ def run_pin(file, architecture, out_dir):
 
     pin_dict = {
         "pin_returncode": returncode,
-        "pin_tool_success": pin_tool_success
+        "pin_tool_success": pin_tool_success,
+        "execution_time": timer.formatted_time(),
+        "execution_timedelta": timer.as_timedelta()
     }
 
     print("[Pin] Instrumentaçao concluida")
