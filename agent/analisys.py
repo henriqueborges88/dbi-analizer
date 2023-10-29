@@ -20,6 +20,7 @@ def save_json(dict, path):
 def process(result_server_ip="localhost", action=None):
     try:
         timer = Timer()
+        timer.start()
         file_path = None 
         path_analisys = os.path.abspath("./in/")
         path_processed = os.path.abspath("./out/")
@@ -129,8 +130,8 @@ def process(result_server_ip="localhost", action=None):
                 "hash": hash,
                 "out_dir": out_dir,
                 "in_dir": file_path,
-                "execution_time": timer.formatted_time(),
-                "execution_timedelta": timer.as_timedelta()
+                "execution_time": str(timer.formatted_time()),
+                "execution_timedelta": str(timer.as_timedelta())
             }
 
             try:

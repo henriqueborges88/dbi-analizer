@@ -9,6 +9,7 @@ from timer import Timer
 def run_dynamorio(file, architecture, out_dir):
     print("Executando Dynamorio")
     timer = Timer()
+    timer.start()
     out_dir = os.path.join(out_dir, "dynamorio")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -61,8 +62,8 @@ def run_dynamorio(file, architecture, out_dir):
     dynamorio_dict = {
         "dynamorio_returncode": returncode,
         "dynamorio_tool_success": dynamorio_tool_success,
-        "execution_time": timer.formatted_time(),
-        "execution_timedelta": timer.as_timedelta()
+        "execution_time": str(timer.formatted_time()),
+        "execution_timedelta": str(timer.as_timedelta())
     }
 
     print("[dynamorio] Instrumentaçao concluida")

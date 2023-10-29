@@ -9,6 +9,7 @@ from timer import Timer
 def run_pin(file, architecture, out_dir):
     print("Executando Pin")
     timer = Timer()
+    timer.start()
     out_dir = os.path.join(out_dir, "pin")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -60,8 +61,8 @@ def run_pin(file, architecture, out_dir):
     pin_dict = {
         "pin_returncode": returncode,
         "pin_tool_success": pin_tool_success,
-        "execution_time": timer.formatted_time(),
-        "execution_timedelta": timer.as_timedelta()
+        "execution_time": str(timer.formatted_time()),
+        "execution_timedelta": str(timer.as_timedelta())
     }
 
     print("[Pin] Instrumentaçao concluida")

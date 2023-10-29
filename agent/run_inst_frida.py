@@ -12,6 +12,7 @@ from timer import Timer
 def run_frida(file, out):
     print("Executando Frida")
     timer = Timer()
+    timer.start()
     out_dir = os.path.join(out, "frida")
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
@@ -76,8 +77,8 @@ def run_frida(file, out):
             "has_error": sample_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
             "functions_user32": functions_user32,
             "instrumentation_errors": instrumentation_errors,
-            "execution_time": timer.formatted_time(),
-            "execution_timedelta": timer.as_timedelta()
+            "execution_time": str(timer.formatted_time()),
+            "execution_timedelta": str(timer.as_timedelta())
         }
     except Exception as ex:
         frida_dict = {
@@ -87,11 +88,21 @@ def run_frida(file, out):
             "has_error": sample_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
             "functions_user32": functions_user32,
             "instrumentation_errors": instrumentation_errors,
-            "execution_time": timer.formatted_time(),
-            "execution_timedelta": timer.as_timedelta()
+            "execution_time": str(timer.formatted_time()),
+            "execution_timedelta": str(timer.as_timedelta())
         }
 
     print("[frida] Instrumentaçao concluida")
 
     with open(out_path, 'w') as json_file:
         json.dump(frida_dict, json_file, sort_keys=False, indent=4)
+
+def main():
+    if len(sys.argv) < 2:
+        print("Uso: python run_inst_frida.py <arquivo> <saída>")
+        return 
+    file = sys.argv[1]
+    out = sys.argv[2]
+    run_frida(file, out)
+if __name__ == "__main__":
+    main()

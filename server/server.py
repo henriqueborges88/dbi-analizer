@@ -2,9 +2,12 @@ import os
 import tempfile
 from flask import Flask, request, jsonify, send_file
 from database import create_samples_table, create_config_table, insert_sample, get_samples, update_sample_status, remove_all_records, update_config, get_config
-from run_analisys import run_analisys
-from utils import compress_folder, select_host_ip, delete_all_files_and_folders
+from run_analysis import run_analysis
+from virtualbox_manager import configure_hostonly_network
+from utils import compress_folder, write_ip_to_file, delete_all_files_and_folders
 import threading
+
+SERVER_IP="192.168.56.10"
 
 def create_app():
     create_samples_table()  
@@ -12,10 +15,7 @@ def create_app():
     app = Flask(__name__)
     app.config['TIMEOUT'] = 300
 
-    select_host_ip()
-
-    thread_analisys = threading.Thread(target=run_analisys, name='Thread Analisys')
-    thread_analisys.daemon = True
+    thread_analisys = threading.Thread(target=run_analysis, name='Thread Analisys', args=[SERVER_IP], daemon=True)
     thread_analisys.start()
 
     @app.route('/')
@@ -135,5 +135,8 @@ def create_app():
     return app
 
 if __name__ == '__main__':
+    configure_hostonly_network(SERVER_IP)
+    write_ip_to_file(SERVER_IP)
+
     app = create_app()
     app.run(host='0.0.0.0')
