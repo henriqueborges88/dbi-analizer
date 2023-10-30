@@ -40,6 +40,9 @@ def create_app():
         if request.method == 'POST':
             file = request.files['file']
             if file:
+                if not os.path.exists("results"):
+                    os.mkdir("results")
+
                 filename = file.filename
                 file.save(os.path.join("results", filename))
 
