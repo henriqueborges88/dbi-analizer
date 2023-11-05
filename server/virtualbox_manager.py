@@ -44,8 +44,12 @@ def start_vm(vm_name):
     subprocess.run([VBOXMANAGE_PATH, "startvm", vm_name])
 
 def poweroff_vm(vm_name):
-    # Desligando a VM
-    subprocess.run([VBOXMANAGE_PATH, "controlvm", vm_name, "poweroff"])
+    # Desligando a VM VBoxSVC.exe
+    poweroff_result = subprocess.check_output([VBOXMANAGE_PATH, "controlvm", vm_name, "poweroff"]).decode("utf-8")
+    if "VBoxManage.exe: error: Code E_FAIL" in poweroff_result:
+        subprocess.run(f"taskkill /F /IM VirtualBoxVM.exe > NUL 2> NUL", shell=True)
+        subprocess.run(f"taskkill /F /IM VBoxSVC.exe > NUL 2> NUL", shell=True)
+       
 
 def get_vm_state(vm_name):
     # Obtendo o estado atual da VM

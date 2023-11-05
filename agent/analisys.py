@@ -1,15 +1,15 @@
 import json
 import os
 # from run_inst_pyqbdi import run_pyqbdi
-from run_inst_dynamorio import run_dynamorio
+from agent.tool_inst_dynamorio import run_dynamorio
 from utils import calculate_sha256_hash, compress_folder, instr_proc_task_kill, count_analisys_target
 from sample_data import SampleUploader
-from run_die import run_die
-from run_floss import run_floss
-from run_pe import run_pe
-from run_vivisect import run_vivisect
-from run_inst_pin import run_pin
-from run_inst_frida import run_frida
+from agent.tool_die import run_die
+from agent.tool_floss import run_floss
+from agent.tool_pefile import run_pe
+from agent.tool_vivisect import run_vivisect
+from agent.tool_inst_pin import run_pin
+from agent.tool_inst_frida import run_frida
 import sys
 from timer import Timer
 
