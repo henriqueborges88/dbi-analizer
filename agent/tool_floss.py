@@ -18,8 +18,7 @@ class FlossRunner(ToolRunner):
         out_path = os.path.join(out_dir, "floss.json")
         floss_path = os.path.abspath("./tools/floss/floss.exe") 
         subprocess.run(f'"{floss_path}" --only static -j "{file}" > "{out_path}" 2>&1', shell=True)
-        result_path = Path(out_path)
-        return str(result_path)
+        return out_path
     
     def run(self):
         return FlossRunner.__run(self.file_path, self.out_dir)

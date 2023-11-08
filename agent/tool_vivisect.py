@@ -75,9 +75,7 @@ class VivisectRunner(ToolRunner):
         with open(res_vivisect_json_path, "w") as file:
             json.dump(analysis_result, file)
 
-        res_vivisect_json_path = Path(res_vivisect_json_path)
-        res_vivisect_path = Path(res_vivisect_path)
-        return str(res_vivisect_json_path), str(res_vivisect_path)
+        return res_vivisect_json_path, res_vivisect_path
 
     def run(self):
         return VivisectRunner.__run(self.file_path, self.out_dir)

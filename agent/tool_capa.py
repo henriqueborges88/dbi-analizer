@@ -19,8 +19,7 @@ class CapaRunner(ToolRunner):
         capa_path = os.path.abspath("./tools/capa/capa.exe")
         rules_path = os.path.abspath("./tools/capa/capa-rules")
         subprocess.run(f'"{capa_path}" -q -r "{rules_path}" -j "{file_path}" > "{out_path}" 2>&1', shell=True)
-        result_path = Path(out_path)
-        return str(result_path)
+        return out_path
 
     def run(self):
         return CapaRunner.__run(self.file_path, self.out_dir)

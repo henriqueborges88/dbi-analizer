@@ -80,8 +80,7 @@ class DynamorioRunner(ToolRunner):
         with open(dynamorio_run_data_path, 'w') as json_file:
             json.dump(dynamorio_dict, json_file, sort_keys=False, indent=4)
 
-        result_path = Path(dynamorio_run_data_path)
-        return str(result_path)
+        return dynamorio_run_data_path
 
     def run(self):
         return DynamorioRunner.__run(self.file_path, self.out_dir, self.architecture)

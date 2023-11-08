@@ -77,8 +77,7 @@ class PinRunner(ToolRunner):
         with open(pin_run_data_path, 'w') as json_file:
             json.dump(pin_dict, json_file, sort_keys=False, indent=4)
 
-        result_path = Path(pin_run_data_path)
-        return str(result_path)
+        return pin_run_data_path
 
     def run(self):
         return PinRunner.__run(self.file_path, self.out_dir, self.architecture)

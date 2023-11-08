@@ -5,6 +5,37 @@ import subprocess
 import zipfile
 import os
 from time import sleep
+from datetime import date, datetime
+import json
+
+class DictEncoder(json.JSONEncoder):
+    def key_to_json(self, data):
+        if data is None or isinstance(data, (bool, int, str)):
+            return data
+        if isinstance(data, (bytearray, bytes)):
+            return data.decode('UTF-8')
+        if isinstance(data, (tuple, frozenset)):
+            return str(data)
+        return "Undefined"
+
+    def default(self, obj):
+        if isinstance(obj, (bytearray, bytes)):
+            return obj.decode('UTF-8')
+        if isinstance(obj, (date, datetime)):
+            return obj.timestamp()
+        if obj is None or isinstance(obj, (bool, int, tuple, range, str, list)):
+            return obj
+        if isinstance(obj, (set, frozenset)):
+            return sorted(obj)
+        if isinstance(obj, dict):
+            return {self.key_to_json(key): self.default(obj[key]) for key in obj}
+        if isinstance(obj, (list, tuple)):
+            return [self.default(item) for item in obj]
+        try:
+            return super().default(obj)
+        except TypeError as e:
+            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable: {e}")
+
 
 def calculate_sha256_hash(file_path):
     sha256_hash = hashlib.sha256()

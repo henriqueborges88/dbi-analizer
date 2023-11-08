@@ -18,8 +18,7 @@ class DieRunner(ToolRunner):
         out_path = os.path.join(out_dir, "die.json")
         die_path = os.path.abspath("./tools/die_win64_portable_3.07/diec.exe")
         subprocess.run(f'"{die_path}" -djruaei "{file}" > "{out_path}" 2>&1', shell=True)
-        result_path = Path(out_path)
-        return str(result_path)
+        return out_path
     
     def run(self):
         return DieRunner.__run(self.file_path, self.out_dir)

@@ -1,44 +1,14 @@
 import sys
 import pefile
 import json
-from datetime import date, datetime
 import hashlib
 import os
 from pathlib import Path
 from tool_runner_base import ToolRunner
-from utils import ensure_directory_exists, log_error_file
+from utils import DictEncoder, ensure_directory_exists, log_error_file
 
 
 BLOCKSIZE = 65536
-
-class PEEncoder(json.JSONEncoder):
-    def key_to_json(self, data):
-        if data is None or isinstance(data, (bool, int, str)):
-            return data
-        if isinstance(data, (bytearray, bytes)):
-            return data.decode('UTF-8')
-        if isinstance(data, (tuple, frozenset)):
-            return str(data)
-        return "Undefined"
-
-    def default(self, obj):
-        if isinstance(obj, (bytearray, bytes)):
-            return obj.decode('UTF-8')
-        if isinstance(obj, (date, datetime)):
-            return obj.timestamp()
-        if obj is None or isinstance(obj, (bool, int, tuple, range, str, list)):
-            return obj
-        if isinstance(obj, (set, frozenset)):
-            return sorted(obj)
-        if isinstance(obj, dict):
-            return {self.key_to_json(key): self.default(obj[key]) for key in obj}
-        if isinstance(obj, (list, tuple)):
-            return [self.default(item) for item in obj]
-        try:
-            return super().default(obj)
-        except TypeError as e:
-            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable: {e}")
-
 
 def convert_bytes_and_skip_noniterables(obj):
     """
@@ -156,7 +126,7 @@ class PEFileRunner(ToolRunner):
         pe_dict.update({"Resource_directory": pe.dump_dict()["Resource directory"]})
     
         with open(out_path, 'w') as json_file:
-            json.dump(pe_dict, json_file, cls=PEEncoder, sort_keys=False, indent=4)
+            json.dump(pe_dict, json_file, cls=DictEncoder, sort_keys=False, indent=4)
 
         pe.close()
 
@@ -168,8 +138,7 @@ class PEFileRunner(ToolRunner):
         else:
             architecture = str(pe.FILE_HEADER.Machine)
     
-        result_path = Path(out_path)
-        return str(result_path), architecture
+        return out_path, architecture
     
     def run(self):
         run_out, architecture = PEFileRunner.__run(self.file_path, self.out_dir)

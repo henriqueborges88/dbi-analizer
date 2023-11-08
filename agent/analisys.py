@@ -6,6 +6,7 @@ from tool_die import DieRunner
 from tool_floss import FlossRunner
 from tool_pefile import PEFileRunner
 from tool_capa import CapaRunner
+from tool_yara import YaraRunner
 from tool_vivisect import VivisectRunner
 from tool_inst_pin import PinRunner
 from tool_inst_dynamorio import DynamorioRunner
@@ -98,6 +99,12 @@ def process(result_server_ip="localhost", action=None):
         try:
             capa_runner = CapaRunner(file_path, out_dir)
             capa_runner.run()
+        except Exception as e:
+            print(e)
+                    
+        try:
+            yara_runner = YaraRunner(file_path, out_dir)
+            yara_runner.run()
         except Exception as e:
             print(e)
             

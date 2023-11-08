@@ -37,19 +37,34 @@ def configure_vm_hostonly_network(vm_name, interface_name):
 
 def restore_vm_snapshot(vm_name, snapshot_name):
     # Restaurando VM para o snapshot especificado
-    subprocess.run([VBOXMANAGE_PATH, "snapshot", vm_name, "restore", snapshot_name])
+    cmd_result = subprocess.run([VBOXMANAGE_PATH, "snapshot", vm_name, "restore", snapshot_name], capture_output=True)
+    out_err = cmd_result.stderr.decode()
+    if cmd_result.returncode != 0 and ("is already locked by a session" in out_err or "VBoxManage.exe: error: Code E_FAIL" in out_err):
+        kill_vm_proc()
+
+    return cmd_result.returncode, out_err
 
 def start_vm(vm_name):
     # Iniciando a VM
-    subprocess.run([VBOXMANAGE_PATH, "startvm", vm_name])
+    cmd_result = subprocess.run([VBOXMANAGE_PATH, "startvm", vm_name], capture_output=True)
+    out_err = cmd_result.stderr.decode()
+    if cmd_result.returncode != 0 and ("is already locked by a session" in out_err or "VBoxManage.exe: error: Code E_FAIL" in out_err):
+        kill_vm_proc()
+
+    return cmd_result.returncode, out_err
 
 def poweroff_vm(vm_name):
     # Desligando a VM VBoxSVC.exe
     poweroff_result = subprocess.check_output([VBOXMANAGE_PATH, "controlvm", vm_name, "poweroff"]).decode("utf-8")
     if "VBoxManage.exe: error: Code E_FAIL" in poweroff_result:
-        subprocess.run(f"taskkill /F /IM VirtualBoxVM.exe > NUL 2> NUL", shell=True)
+        kill_vm_proc()
         subprocess.run(f"taskkill /F /IM VBoxSVC.exe > NUL 2> NUL", shell=True)
-       
+    time.sleep(5)
+    # Depois de 5 seg, se o processo da VM ainda existir, ele é encerrado 
+    kill_vm_proc()
+
+def kill_vm_proc():
+    subprocess.run(f"taskkill /F /IM VirtualBoxVM.exe > NUL 2> NUL", shell=True)
 
 def get_vm_state(vm_name):
     # Obtendo o estado atual da VM

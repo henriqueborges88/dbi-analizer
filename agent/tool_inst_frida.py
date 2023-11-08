@@ -100,8 +100,7 @@ class FridaRunner(ToolRunner):
         with open(out_path, 'w') as json_file:
             json.dump(frida_dict, json_file, sort_keys=False, indent=4)
 
-        result_path = Path(out_path)
-        return str(result_path)
+        return out_path
 
     def run(self):
         return FridaRunner.__run(self.file_path, self.out_dir)
