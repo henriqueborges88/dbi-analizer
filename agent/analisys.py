@@ -1,15 +1,15 @@
 import json
 import os
-# from run_inst_pyqbdi import run_pyqbdi
-from agent.tool_inst_dynamorio import run_dynamorio
 from utils import calculate_sha256_hash, compress_folder, instr_proc_task_kill, count_analisys_target
 from sample_data import SampleUploader
-from agent.tool_die import run_die
-from agent.tool_floss import run_floss
-from agent.tool_pefile import run_pe
-from agent.tool_vivisect import run_vivisect
-from agent.tool_inst_pin import run_pin
-from agent.tool_inst_frida import run_frida
+from tool_die import DieRunner
+from tool_floss import FlossRunner
+from tool_pefile import PEFileRunner
+from tool_capa import CapaRunner
+from tool_vivisect import VivisectRunner
+from tool_inst_pin import PinRunner
+from tool_inst_dynamorio import DynamorioRunner
+from tool_inst_frida import FridaRunner
 import sys
 from timer import Timer
 
@@ -76,39 +76,52 @@ def process(result_server_ip="localhost", action=None):
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
-
         try:
-            architecture = run_pe(file_path, out_dir, True)
+            pefile_runner = PEFileRunner(file_path, out_dir)
+            pefile_runner.run()
+            architecture = pefile_runner.architecture
         except Exception as e:
             print(e)
 
         try:
-            run_die(file_path, out_dir)
+            die_runner = DieRunner(file_path, out_dir)
+            die_runner.run()
         except Exception as e:
             print(e)
             
         try:
-            run_floss(file_path, out_dir)
+            floss_runner = FlossRunner(file_path, out_dir)
+            floss_runner.run()
         except Exception as e:
             print(e)
         
         try:
-            run_vivisect(file_path, out_dir)
+            capa_runner = CapaRunner(file_path, out_dir)
+            capa_runner.run()
         except Exception as e:
             print(e)
             
         try:
-            run_pin(file_path, architecture, out_dir)
+            vivisect_runner = VivisectRunner(file_path, out_dir)
+            vivisect_runner.run()
         except Exception as e:
             print(e)
-        
+            
         try:
-            run_frida(file_path, out_dir)
+            pin_runner = PinRunner(file_path, out_dir, architecture)
+            pin_runner.run()
         except Exception as e:
             print(e)
 
         try:
-            run_dynamorio(file_path, architecture, out_dir)
+            dynamorio_runner = DynamorioRunner(file_path, out_dir, architecture)
+            dynamorio_runner.run()
+        except Exception as e:
+            print(e)
+        
+        try:
+            frida_runner = FridaRunner(file_path, out_dir)
+            frida_runner.run()
         except Exception as e:
             print(e)
         
@@ -153,7 +166,7 @@ def process(result_server_ip="localhost", action=None):
                 print("Ação não enviada.")
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("Uso: python script.py <ip_do_serviço> <acao_post_execucao>")
         print("Onde <acao_post_execucao> pode ser 'restart', 'shutdown' ou 'exit-script'.")
         return

@@ -1,15 +1,22 @@
+import sys
 import pefile
 import json
 from datetime import date, datetime
 import hashlib
 import os
+from pathlib import Path
+from tool_runner_base import ToolRunner
+from utils import ensure_directory_exists, log_error_file
+
 
 BLOCKSIZE = 65536
 
-class pe_encoder(json.JSONEncoder):
+class PEEncoder(json.JSONEncoder):
     def key_to_json(self, data):
         if data is None or isinstance(data, (bool, int, str)):
             return data
+        if isinstance(data, (bytearray, bytes)):
+            return data.decode('UTF-8')
         if isinstance(data, (tuple, frozenset)):
             return str(data)
         return "Undefined"
@@ -25,94 +32,161 @@ class pe_encoder(json.JSONEncoder):
             return sorted(obj)
         if isinstance(obj, dict):
             return {self.key_to_json(key): self.default(obj[key]) for key in obj}
+        if isinstance(obj, (list, tuple)):
+            return [self.default(item) for item in obj]
         try:
-            return json.JSONEncoder.default(self, obj)
-        except:
-            return None
+            return super().default(obj)
+        except TypeError as e:
+            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable: {e}")
 
 
-def run_pe(filepath, out, pretty):
-    print("Executando PEFile")
+def convert_bytes_and_skip_noniterables(obj):
+    """
+    Converte bytes e bytearrays em strings de um objeto de forma recursiva
+    e desconsidera objetos NoneType e não iteráveis.
 
-    out_dir = os.path.join(out, "pefile")
-    if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
+    :param obj: Objeto (pode ser dicionário ou lista) para processar.
+    :return: Objeto com bytes e bytearrays convertidos, None e não iteráveis desconsiderados.
+    """
+    if not isinstance(obj, (dict, list)):
+        raise ValueError("O objeto fornecido não é um dicionário nem uma lista")
+
+    def is_iterable(value):
+        return isinstance(value, (list, dict))
+
+    def convert_bytes(value):
+        if isinstance(value, (bytes, bytearray)):
+            try:
+                return value.decode('UTF-8')
+            except UnicodeDecodeError:
+                return None
+        return value
+
+    if isinstance(obj, list):
+        # Se for uma lista, processa cada item recursivamente.
+        return [convert_bytes_and_skip_noniterables(item) for item in obj
+                if item is not None and is_iterable(item)]
     
-    out_path = os.path.join(out_dir, "pefile.json")
+    elif isinstance(obj, dict):
+        converted_dict = {}
+        for key, value in obj.items():
+            if value is None:
+                # Se o valor for None, pula a chave.
+                continue
+            # Converte chaves se forem do tipo bytes ou bytearray.
+            converted_key = convert_bytes(key)
+            if is_iterable(value):
+                # Se o valor for iterável, processa-o recursivamente.
+                converted_dict[converted_key] = convert_bytes_and_skip_noniterables(value)
+            else:
+                # Se o valor for um tipo de dados primitivo, tenta convertê-lo se for bytes.
+                converted_value = convert_bytes(value)
+                if converted_value is not None:
+                    converted_dict[converted_key] = converted_value
+        return converted_dict
 
-    pe = pefile.PE(filepath)
-    pe.parse_data_directories( directories=[         
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXPORT'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IMPORT'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXCEPTION'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_SECURITY'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_BASERELOC'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_DEBUG'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_COPYRIGHT'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_GLOBALPTR'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_TLS'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT'],
-        pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IAT']
-        ] )
 
-    pe_dict = dict()
-    
-    # name
-    pe_dict['name'] = os.path.basename(filepath)
+class PEFileRunner(ToolRunner):
+    def __init__(self, file_path, out):
+        super().__init__(file_path, out)
+        out_dir = os.path.join(out, "pefile")
+        self.out_dir = ensure_directory_exists(out_dir)
+        self.architecture = None
+        
+    @staticmethod
+    @log_error_file
+    def __run(file, out_dir):
+        print("Executando PEFile...")  
+        out_path = os.path.join(out_dir, "pefile.json")
 
-    # size
-    pe_dict['size'] = os.path.getsize(filepath)
+        pe = pefile.PE(file)
+        pe.parse_data_directories( directories=[         
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXPORT'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IMPORT'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_EXCEPTION'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_SECURITY'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_BASERELOC'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_DEBUG'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_COPYRIGHT'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_GLOBALPTR'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_TLS'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT'],
+            pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_IAT']
+            ] )
 
-	# md5, sha-1, sha-256, sha-512
-    md5 = hashlib.md5()
-    sha1 = hashlib.sha1()
-    sha256 = hashlib.sha256()
-    sha512 = hashlib.sha512()
-    with open(filepath, 'rb') as file:
-        buffer = file.read(BLOCKSIZE)
-        while len(buffer) > 0:
-            md5.update(buffer)
-            sha1.update(buffer)
-            sha256.update(buffer)
-            sha512.update(buffer)
+        pe_dict = dict()
+        
+        pe_dict['name'] = os.path.basename(file)
+
+        pe_dict['size'] = os.path.getsize(file)
+
+        # md5, sha-1, sha-256, sha-512
+        md5 = hashlib.md5()
+        sha1 = hashlib.sha1()
+        sha256 = hashlib.sha256()
+        sha512 = hashlib.sha512()
+        with open(file, 'rb') as file:
             buffer = file.read(BLOCKSIZE)
-    pe_dict['md5'] = md5.hexdigest()
-    pe_dict['sha-1'] = sha1.hexdigest()
-    pe_dict['sha-256'] = sha256.hexdigest()
-    pe_dict['sha-512'] = sha512.hexdigest()
+            while len(buffer) > 0:
+                md5.update(buffer)
+                sha1.update(buffer)
+                sha256.update(buffer)
+                sha512.update(buffer)
+                buffer = file.read(BLOCKSIZE)
+        pe_dict['md5'] = md5.hexdigest()
+        pe_dict['sha-1'] = sha1.hexdigest()
+        pe_dict['sha-256'] = sha256.hexdigest()
+        pe_dict['sha-512'] = sha512.hexdigest()
 
-	# imphash
-    pe_dict['imphash'] = pe.get_imphash()
+        pe_dict['imphash'] = pe.get_imphash()
 
-	# Add the whole pe to the dictionnary
-    pe_dict.update({"DOS_HEADER": pe.dump_dict()["DOS_HEADER"]})
-    pe_dict.update({"NT_HEADERS": pe.dump_dict()["NT_HEADERS"]})
-    pe_dict.update({"FILE_HEADER": pe.dump_dict()["FILE_HEADER"]})
-    pe_dict.update({"Flags": pe.dump_dict()["Flags"]})
-    pe_dict.update({"OPTIONAL_HEADER": pe.dump_dict()["OPTIONAL_HEADER"]})
-    pe_dict.update({"DllCharacteristics": pe.dump_dict()["DllCharacteristics"]})
-    pe_dict.update({"PE_Sections": pe.dump_dict()["PE Sections"]})
-    pe_dict.update({"Directories": pe.dump_dict()["Directories"]})
-    #pe_dict.update({"Version_Information": pe.dump_dict()["Version Information"]})
-    pe_dict.update({"Imported_symbols": pe.dump_dict()["Imported symbols"]})
-    pe_dict.update({"Resource_directory": pe.dump_dict()["Resource directory"]})
- 
-    # Make a json file
-    if (pretty is True):
+        pe_dict.update({"DOS_HEADER": pe.dump_dict()["DOS_HEADER"]})
+        pe_dict.update({"NT_HEADERS": pe.dump_dict()["NT_HEADERS"]})
+        pe_dict.update({"FILE_HEADER": pe.dump_dict()["FILE_HEADER"]})
+        pe_dict.update({"Flags": pe.dump_dict()["Flags"]})
+        pe_dict.update({"OPTIONAL_HEADER": pe.dump_dict()["OPTIONAL_HEADER"]})
+        pe_dict.update({"DllCharacteristics": pe.dump_dict()["DllCharacteristics"]})
+        pe_dict.update({"PE_Sections": pe.dump_dict()["PE Sections"]})
+        pe_dict.update({"Directories": pe.dump_dict()["Directories"]})
+        version_information = convert_bytes_and_skip_noniterables(pe.dump_dict()["Version Information"])
+        pe_dict.update({"Version_Information": version_information})
+        pe_dict.update({"Imported_symbols": pe.dump_dict()["Imported symbols"]})
+        pe_dict.update({"Resource_directory": pe.dump_dict()["Resource directory"]})
+    
         with open(out_path, 'w') as json_file:
-            json.dump(pe_dict, json_file, cls=pe_encoder, sort_keys=False, indent=4)
-    else:
-        with open(out_path, 'w') as json_file:
-            json.dump(pe_dict, json_file, cls=pe_encoder, sort_keys=False)
+            json.dump(pe_dict, json_file, cls=PEEncoder, sort_keys=False, indent=4)
 
-    pe.close()
+        pe.close()
 
-    if pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_I386']:
-        return '32 bits'
-    elif pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_AMD64']:
-        return '64 bits'
-    else:
-        return 'Arquitetura desconhecida'
- 
+        architecture = None
+        if pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_I386']:
+            architecture = '32 bits'
+        elif pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_AMD64']:
+            architecture = '64 bits'
+        else:
+            architecture = str(pe.FILE_HEADER.Machine)
+    
+        result_path = Path(out_path)
+        return str(result_path), architecture
+    
+    def run(self):
+        run_out, architecture = PEFileRunner.__run(self.file_path, self.out_dir)
+        self.architecture = architecture
+        return run_out
+
+
+def main():
+    if len(sys.argv) < 3:
+        print("Uso: python tool_pefile.py <arquivo> <saída>")
+        return 
+    file = sys.argv[1]
+    out = sys.argv[2]
+
+    pefile_runner = PEFileRunner(file, out)
+    result_path = pefile_runner.run()
+    print(f"O resultado foi salvo no arquivo -> {result_path}")
+
+if __name__ == "__main__":
+    main()

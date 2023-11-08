@@ -1,19 +1,40 @@
 import os
-import subprocess
 from pathlib import Path
+import subprocess
+import sys
+from tool_runner_base import ToolRunner
+from utils import ensure_directory_exists, log_error_file
 
-def run_floss(file_path, out):
-    print("Executando Floss")
-
-    out_dir = os.path.join(out, "floss")
-    if not os.path.exists(out_dir):
-        os.mkdir(out_dir)
+class FlossRunner(ToolRunner):
+    def __init__(self, file_path, out):
+        super().__init__(file_path, out)
+        out_dir = os.path.join(out, "floss")
+        self.out_dir = ensure_directory_exists(out_dir)
     
-    out_path = os.path.join(out_dir, "floss.json")
+    @staticmethod
+    @log_error_file
+    def __run(file, out_dir):
+        print("Executando Floss...")
+        out_path = os.path.join(out_dir, "floss.json")
+        floss_path = os.path.abspath("./tools/floss/floss.exe") 
+        subprocess.run(f'"{floss_path}" --only static -j "{file}" > "{out_path}" 2>&1', shell=True)
+        result_path = Path(out_path)
+        return str(result_path)
+    
+    def run(self):
+        return FlossRunner.__run(self.file_path, self.out_dir)
 
-    floss_path = os.path.abspath("./tools/floss/floss.exe") 
-    res_path = Path(out_path)
-    p = subprocess.run(f'{floss_path} --only static -j "{file_path}"', shell=True, check=True, capture_output=True)
-    with res_path.open("w") as f:
-        f.write(p.stdout.decode("utf-8"))
-    return str(res_path)
+
+def main():
+    if len(sys.argv) < 3:
+        print("Uso: python tool_floss.py <arquivo> <saída>")
+        return 
+    file = sys.argv[1]
+    out = sys.argv[2]
+
+    floss_runner = FlossRunner(file, out)
+    result_path = floss_runner.run()
+    print(f"O resultado foi salvo no arquivo -> {result_path}")
+
+if __name__ == "__main__":
+    main()
