@@ -1,6 +1,6 @@
 import json
 import os
-from utils import calculate_sha256_hash, compress_folder, instr_proc_task_kill, count_analisys_target
+from utils import calculate_sha256_hash, compress_folder, task_kill, count_analisys_target
 from sample_data import SampleUploader
 from tool_die import DieRunner
 from tool_floss import FlossRunner
@@ -8,6 +8,7 @@ from tool_pefile import PEFileRunner
 from tool_capa import CapaRunner
 from tool_yara import YaraRunner
 from tool_vivisect import VivisectRunner
+from tool_procmon import ProcmonRunner
 from tool_inst_pin import PinRunner
 from tool_inst_dynamorio import DynamorioRunner
 from tool_inst_frida import FridaRunner
@@ -77,43 +78,49 @@ def process(result_server_ip="localhost", action=None):
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
-        try:
-            pefile_runner = PEFileRunner(file_path, out_dir)
-            pefile_runner.run()
-            architecture = pefile_runner.architecture
-        except Exception as e:
-            print(e)
+        # try:
+        #     pefile_runner = PEFileRunner(file_path, out_dir)
+        #     pefile_runner.run()
+        #     architecture = pefile_runner.architecture
+        # except Exception as e:
+        #     print(e)
 
-        try:
-            die_runner = DieRunner(file_path, out_dir)
-            die_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     die_runner = DieRunner(file_path, out_dir)
+        #     die_runner.run()
+        # except Exception as e:
+        #     print(e)
             
-        try:
-            floss_runner = FlossRunner(file_path, out_dir)
-            floss_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     floss_runner = FlossRunner(file_path, out_dir)
+        #     floss_runner.run()
+        # except Exception as e:
+        #     print(e)
         
-        try:
-            capa_runner = CapaRunner(file_path, out_dir)
-            capa_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     capa_runner = CapaRunner(file_path, out_dir)
+        #     capa_runner.run()
+        # except Exception as e:
+        #     print(e)
                     
-        try:
-            yara_runner = YaraRunner(file_path, out_dir)
-            yara_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     yara_runner = YaraRunner(file_path, out_dir)
+        #     yara_runner.run()
+        # except Exception as e:
+        #     print(e)
+            
+        # try:
+        #     vivisect_runner = VivisectRunner(file_path, out_dir)
+        #     vivisect_runner.run()
+        # except Exception as e:
+        #     print(e)
             
         try:
-            vivisect_runner = VivisectRunner(file_path, out_dir)
-            vivisect_runner.run()
+            procmon_runner = ProcmonRunner(file_path, out_dir)
+            procmon_runner.run()
         except Exception as e:
             print(e)
-            
+        return
         try:
             pin_runner = PinRunner(file_path, out_dir, architecture)
             pin_runner.run()
@@ -133,7 +140,7 @@ def process(result_server_ip="localhost", action=None):
             print(e)
         
         target_file_name = os.path.basename(file_path)
-        instr_proc_task_kill(target_file_name, True)
+        task_kill(target_file_name, True)
 
         zip_file = os.path.join(path_compressed,  f"{hash}.zip")
         compress_folder(out_dir, zip_file)

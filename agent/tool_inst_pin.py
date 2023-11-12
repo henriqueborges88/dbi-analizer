@@ -3,7 +3,7 @@ import os
 import re
 from subprocess import Popen
 import sys
-from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
+from utils import wait_until_finish, task_kill, proc_kill_force
 from timer import Timer
 from pathlib import Path
 from tool_runner_base import ToolRunner
@@ -45,8 +45,8 @@ class PinRunner(ToolRunner):
             pin_proc = Popen(f"\"{pin_path}\" -logfile \"{pin_log_path}\" -error_file \"{pin_error_path}\" -t \"{pin_tool_path}\" -o \"{pintool_out_path}\" -- \"{file_path}\"", shell=True, stdout=output_file, stderr=error_file)
             
             wait_until_finish(pin_proc, timeout=10)
-            instr_proc_task_kill(target_file_name)
-            instr_proc_task_kill(target_file_name, True)
+            task_kill(target_file_name)
+            task_kill(target_file_name, True)
             wait_until_finish(pin_proc, timeout=5)
             proc_kill_force(pin_proc)
 

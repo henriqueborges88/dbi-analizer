@@ -3,7 +3,7 @@ import os
 from subprocess import Popen
 import sys
 from time import sleep
-from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
+from utils import wait_until_finish, task_kill, proc_kill_force
 from timer import Timer
 from pathlib import Path
 from tool_runner_base import ToolRunner
@@ -41,8 +41,8 @@ class DynamorioRunner(ToolRunner):
         dynamorio_proc = Popen(f"\"{dynamorio_path}\" -s 40 -exit0 -no_inject -t drcachesim -simulator_type basic_counts -- \"{file_path}\" > {dynamorio_tool_path} 2>&1", shell=True)
 
         wait_until_finish(dynamorio_proc, timeout=15)
-        instr_proc_task_kill(target_file_name)
-        instr_proc_task_kill(target_file_name, True)
+        task_kill(target_file_name)
+        task_kill(target_file_name, True)
         wait_until_finish(dynamorio_proc, timeout=5)
         proc_kill_force(dynamorio_proc)
         Popen(f"\"{drkill_path}\" -underdr", shell=True)

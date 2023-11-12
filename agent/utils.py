@@ -75,7 +75,7 @@ def wait_until_finish(proccess, timeout=40):
     '''
     Espera até o processo finalizar a execução ou até alcançar o tempo máximo de espera
         Parámetros:
-            proccess: Processo do instrumentador
+            proccess: Processo
             timeout: Tempo máxiomo de espera para a finalização do executável   
     '''
     wait_secconds = 0
@@ -83,11 +83,11 @@ def wait_until_finish(proccess, timeout=40):
         wait_secconds +=1
         sleep(1)
 
-def instr_proc_task_kill(file_name, force=False, timeout=10):
+def task_kill(file_name, force=False, timeout=10):
     '''
     Envia o sinal de finalização para o executável que está sendo instrumentado
         Parámetros:
-            proccess: Processo do instrumentador
+            proccess: Processo
             file_name: Nome do arquivo executável sendo intrumentado
             timeout: Tempo máxiomo de espera para a finalização do executável
     '''

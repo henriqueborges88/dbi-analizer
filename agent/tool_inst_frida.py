@@ -1,6 +1,6 @@
 import os
 import sys
-from utils import wait_until_finish, instr_proc_task_kill, proc_kill_force
+from utils import wait_until_finish, task_kill, proc_kill_force
 import frida
 import json
 from subprocess import Popen, PIPE
@@ -61,8 +61,8 @@ class FridaRunner(ToolRunner):
         sample_proc.terminate()
         sleep(1)
         
-        instr_proc_task_kill(file_name)
-        instr_proc_task_kill(file_name, True)
+        task_kill(file_name)
+        task_kill(file_name, True)
         proc_kill_force(sample_proc)
         
         session.detach()

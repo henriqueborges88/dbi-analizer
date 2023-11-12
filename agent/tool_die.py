@@ -15,9 +15,13 @@ class DieRunner(ToolRunner):
     @log_error_file
     def __run(file, out_dir):
         print("Executando DIE...")   
-        out_path = os.path.join(out_dir, "die.json")
         die_path = os.path.abspath("./tools/die_win64_portable_3.07/diec.exe")
-        subprocess.run(f'"{die_path}" -djruaei "{file}" > "{out_path}" 2>&1', shell=True)
+        info_out_path = os.path.join(out_dir, "die_info.json")
+        entropy_out_path = os.path.join(out_dir, "die_entropy.json")
+        detects_out_path = os.path.join(out_dir, "die_detects.json")
+        subprocess.run(f'"{die_path}" -ji "{file}" > "{info_out_path}" 2>&1', shell=True)
+        subprocess.run(f'"{die_path}" -je "{file}" > "{entropy_out_path}" 2>&1', shell=True)
+        subprocess.run(f'"{die_path}" -djrua "{file}" > "{detects_out_path}" 2>&1', shell=True)
         return out_path
     
     def run(self):
