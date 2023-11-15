@@ -163,6 +163,7 @@ pin.log
 .vscode/
 server/tmp/
 server/results/
+server/migrations/
 server/malware_data.db
 malware_data.db
 agent/tmp/

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Controle de Análise</title>
+</head>
+<body>
+    <h1>Controle de Análise</h1>
+    <form method="POST" action="/analysis">
+        <input type="hidden" id="analysis_enabled" name="analysis_enabled" value="{{analysis_action}}"><br><br>
+
+        <label for="vm_name">Nome da VM:</label>
+        <input type="text" id="vm_name" name="vm_name" value="{{vm_name}}"><br><br>
+
+        <label for="snapshot_name">Nome do Snapshot:</label>
+        <input type="text" id="snapshot_name" name="snapshot_name" value="{{snapshot_name}}"><br><br>
+
+        <input type="submit" value="{{button_text}}">
+    </form>
+</body>
+</html>
