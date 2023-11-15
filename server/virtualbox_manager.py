@@ -32,8 +32,7 @@ def configure_hostonly_network(ip_address):
 
 def configure_vm_hostonly_network(vm_name, interface_name):
     print(f"Configurando a VM {vm_name} para usar a interface host-only {interface_name}")
-    subprocess.run([VBOXMANAGE_PATH, "modifyvm", vm_name, "--hostonlyadapter1", interface_name])
-    subprocess.run([VBOXMANAGE_PATH, "modifyvm", vm_name, "--nic1", "hostonly"])
+    subprocess.run([VBOXMANAGE_PATH, "modifyvm", vm_name, "--nic1", "hostonly", "--hostonlyadapter1", interface_name])
 
 def restore_vm_snapshot(vm_name, snapshot_name):
     # Restaurando VM para o snapshot especificado

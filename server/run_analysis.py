@@ -24,13 +24,13 @@ def run_analysis(server_ip_address):
                 time.sleep(1)
                 continue
 
-            # Configurando a rede host-only
-            interface_name = configure_hostonly_network(server_ip_address)
-            configure_vm_hostonly_network(vm_name, interface_name)
-
             # Restaurando VM
             restore_vm_snapshot(vm_name, snapshot_name)
 
+            # Configurando a rede host-only
+            interface_name = configure_hostonly_network(server_ip_address)
+            configure_vm_hostonly_network(vm_name, interface_name)
+            
             # Pequena pausa para garantir que a VM esteja pronta
             time.sleep(2)
 

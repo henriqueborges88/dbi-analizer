@@ -78,49 +78,49 @@ def process(result_server_ip="localhost", action=None):
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
-        # try:
-        #     pefile_runner = PEFileRunner(file_path, out_dir)
-        #     pefile_runner.run()
-        #     architecture = pefile_runner.architecture
-        # except Exception as e:
-        #     print(e)
+        try:
+            pefile_runner = PEFileRunner(file_path, out_dir)
+            pefile_runner.run()
+            architecture = pefile_runner.architecture
+        except Exception as e:
+            print(e)
 
-        # try:
-        #     die_runner = DieRunner(file_path, out_dir)
-        #     die_runner.run()
-        # except Exception as e:
-        #     print(e)
+        try:
+            die_runner = DieRunner(file_path, out_dir)
+            die_runner.run()
+        except Exception as e:
+            print(e)
             
-        # try:
-        #     floss_runner = FlossRunner(file_path, out_dir)
-        #     floss_runner.run()
-        # except Exception as e:
-        #     print(e)
+        try:
+            floss_runner = FlossRunner(file_path, out_dir)
+            floss_runner.run()
+        except Exception as e:
+            print(e)
         
-        # try:
-        #     capa_runner = CapaRunner(file_path, out_dir)
-        #     capa_runner.run()
-        # except Exception as e:
-        #     print(e)
+        try:
+            capa_runner = CapaRunner(file_path, out_dir)
+            capa_runner.run()
+        except Exception as e:
+            print(e)
                     
-        # try:
-        #     yara_runner = YaraRunner(file_path, out_dir)
-        #     yara_runner.run()
-        # except Exception as e:
-        #     print(e)
+        try:
+            yara_runner = YaraRunner(file_path, out_dir)
+            yara_runner.run()
+        except Exception as e:
+            print(e)
             
-        # try:
-        #     vivisect_runner = VivisectRunner(file_path, out_dir)
-        #     vivisect_runner.run()
-        # except Exception as e:
-        #     print(e)
+        try:
+            vivisect_runner = VivisectRunner(file_path, out_dir)
+            vivisect_runner.run()
+        except Exception as e:
+            print(e)
             
         try:
             procmon_runner = ProcmonRunner(file_path, out_dir)
             procmon_runner.run()
         except Exception as e:
             print(e)
-        return
+
         try:
             pin_runner = PinRunner(file_path, out_dir, architecture)
             pin_runner.run()
@@ -132,7 +132,7 @@ def process(result_server_ip="localhost", action=None):
             dynamorio_runner.run()
         except Exception as e:
             print(e)
-        
+
         try:
             frida_runner = FridaRunner(file_path, out_dir)
             frida_runner.run()
