@@ -1,5 +1,6 @@
 @echo off
 cd %~dp0
+python -m venv venv
 call venv\Scripts\activate
 set /p server_ip=<server_ip.txt
 python analisys.py %server_ip% shutdown

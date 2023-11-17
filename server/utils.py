@@ -23,3 +23,8 @@ def delete_all_files_and_folders(directory_path):
     except Exception as e:
         print(f"Ocorreu um erro ao tentar remover os arquivos e pastas: {e}")
         return False
+
+def ensure_directory_exists(out_dir):
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    return out_dir

@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_file, render_template
 from controllers import (insert_sample, get_all_samples, update_sample_status,
                          update_config_item, get_config_item, remove_all_samples)
-from utils import compress_folder, delete_all_files_and_folders, write_ip_to_file
+from utils import compress_folder, delete_all_files_and_folders, ensure_directory_exists, write_ip_to_file
 import os
 import threading
 from run_analysis import run_analysis
@@ -48,7 +48,9 @@ def upload_file():
         sample_hash = request.form.get('hash_sha256')
         if file and sample_hash:
             filename = file.filename
-            file.save(os.path.join('results', filename))
+            ensure_directory_exists('results')
+            result_path = os.path.join('results', filename)
+            file.save(result_path)
             update_sample_status(sample_hash, 'processed')
             return f'Arquivo "{filename}" com hash "{sample_hash}" foi enviado.'
         return 'Nenhum arquivo enviado.'
@@ -69,8 +71,7 @@ def clear_samples():
 def download_agent():
     folder_path = '../agent'
     temp_dir = 'tmp'
-    if not os.path.exists(temp_dir):
-        os.mkdir(temp_dir)
+    ensure_directory_exists(temp_dir)
     output_filename = os.path.join(temp_dir, 'agent.zip')
     if not os.path.exists(output_filename):
         compress_folder(folder_path, output_filename)
