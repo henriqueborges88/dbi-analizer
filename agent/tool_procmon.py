@@ -30,7 +30,7 @@ class ProcmonRunner(ToolRunner):
         subprocess.Popen(f'"{procmon_path}" /AcceptEula /Quiet /Minimized /LoadConfig "{config_path}" /BackingFile "{out_path}"', shell=True)
         subprocess.run(f'"{procmon_path}" /AcceptEula /WaitForIdle', shell=True)
         sample_proc = subprocess.Popen(f"{file_tmp_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        wait_until_finish(sample_proc, timeout=10)
+        wait_until_finish(sample_proc, timeout=5)
         sample_proc.terminate()
         sleep(1)
         task_kill(file_name)

@@ -22,7 +22,7 @@ class DieRunner(ToolRunner):
         subprocess.run(f'"{die_path}" -ji "{file}" > "{info_out_path}" 2>&1', shell=True)
         subprocess.run(f'"{die_path}" -je "{file}" > "{entropy_out_path}" 2>&1', shell=True)
         subprocess.run(f'"{die_path}" -djrua "{file}" > "{detects_out_path}" 2>&1', shell=True)
-        return out_path
+        return detects_out_path, entropy_out_path, info_out_path
     
     def run(self):
         return DieRunner.__run(self.file_path, self.out_dir)

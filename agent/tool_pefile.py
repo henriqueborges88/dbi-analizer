@@ -112,31 +112,20 @@ class PEFileRunner(ToolRunner):
 
         pe_dict['imphash'] = pe.get_imphash()
 
-        pe_dict.update({"DOS_HEADER": pe.dump_dict()["DOS_HEADER"]})
-        pe_dict.update({"NT_HEADERS": pe.dump_dict()["NT_HEADERS"]})
-        pe_dict.update({"FILE_HEADER": pe.dump_dict()["FILE_HEADER"]})
-        pe_dict.update({"Flags": pe.dump_dict()["Flags"]})
-        pe_dict.update({"OPTIONAL_HEADER": pe.dump_dict()["OPTIONAL_HEADER"]})
-        pe_dict.update({"DllCharacteristics": pe.dump_dict()["DllCharacteristics"]})
-        pe_dict.update({"PE_Sections": pe.dump_dict()["PE Sections"]})
-        pe_dict.update({"Directories": pe.dump_dict()["Directories"]})
-        version_information = convert_bytes_and_skip_noniterables(pe.dump_dict()["Version Information"])
-        pe_dict.update({"Version_Information": version_information})
-        pe_dict.update({"Imported_symbols": pe.dump_dict()["Imported symbols"]})
-        pe_dict.update({"Resource_directory": pe.dump_dict()["Resource directory"]})
+        pe_dict.update(pe.dump_dict())
+        if "Version Information" in pe_dict:
+            pe_dict["Version Information"] = convert_bytes_and_skip_noniterables(pe_dict["Version Information"])
     
         with open(out_path, 'w') as json_file:
             json.dump(pe_dict, json_file, cls=DictEncoder, sort_keys=False, indent=4)
 
         pe.close()
 
-        architecture = None
-        if pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_I386']:
+        architecture = next(iter(list(filter(lambda machine_type: pefile.MACHINE_TYPE[machine_type] == pe.FILE_HEADER.Machine, pefile.MACHINE_TYPE))), None)
+        if architecture == 'IMAGE_FILE_MACHINE_I386':
             architecture = '32 bits'
-        elif pe.FILE_HEADER.Machine == pefile.MACHINE_TYPE['IMAGE_FILE_MACHINE_AMD64']:
+        elif architecture == 'IMAGE_FILE_MACHINE_AMD64':
             architecture = '64 bits'
-        else:
-            architecture = str(pe.FILE_HEADER.Machine)
     
         return out_path, architecture
     

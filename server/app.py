@@ -59,7 +59,7 @@ def upload_file():
 @app.route('/samples', methods=['GET'])
 def get_samples_data():
     samples = get_all_samples()
-    return jsonify([{'id': sample.id, 'hash': sample.sample_hash_sha256, 'status': sample.status} for sample in samples])
+    return jsonify([{'id': sample.id, 'sample_hash_sha256': sample.sample_hash_sha256, 'status': sample.status} for sample in samples])
 
 @app.route('/clear-samples', methods=['GET'])
 def clear_samples():
