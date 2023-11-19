@@ -25,75 +25,62 @@ class FridaRunner(ToolRunner):
 
         out_path = os.path.join(out_dir, "frida.json")
         instrumentation_errors = []
-        functions_user32 = []
-        frida_tool_path = os.path.abspath("./tools/frida/enumerate_exports.js") 
+        functions = []
+        frida_tool_path = os.path.abspath("./tools/frida/call_trace.js") # call_trace enumerate_exports
         file_name = os.path.basename(file_path)
-        
-        sample_proc = Popen(f"{file_path}", shell=True, stdout=PIPE, stderr=PIPE)
-        sleep(2)
+        process = frida.spawn(file_path, stdio='pipe')
         try:
-            session = frida.attach(sample_proc.pid)
+            session = frida.attach(process)
         except frida.ProcessNotFoundError:
             print("Processo não encontrado. Certifique-se de que o processo esteja em execução.")
             return
-
         with open(frida_tool_path, "r") as file:
             script_code = file.read()
         script = session.create_script(script_code)
 
-        # Cria um script Frida
-        script = session.create_script(script_code)
-
+        proc_finished = False
         def on_destroyed(reason):
-            print("Script finalizou:", reason)
+            nonlocal proc_finished
+            proc_finished = True
 
         def on_message(message, data):
             if message['type'] == 'send':
-                functions_user32.append(json.loads(message['payload']))
+                functions.append(json.loads(message['payload']))
             elif message['type'] == 'error':
+                print("Erro de instrumentação ->", message['description'])
                 instrumentation_errors.append(message['description'])
 
         script.on('message', on_message)
         script.on("destroyed", on_destroyed)
-        script.load()
+        try:
+            script.load()
+        except Exception as ex:
+            print("Erro ao carregar o script de intrumentação.", ex)
+        sleep(3)
+        frida.resume(process)
         
-        wait_until_finish(sample_proc, timeout=5)
-        sample_proc.terminate()
+        proc_timeout = 20
+        proc_time = 0
+        while proc_finished == False and proc_time < proc_timeout:
+            proc_time += 1
+            sleep(1)
+
+        frida.kill(process)
+        session.detach()
         sleep(1)
-        
         task_kill(file_name)
         task_kill(file_name, True)
-        proc_kill_force(sample_proc)
-        
-        session.detach()
         timer.stop()
 
         try:
-            sample_out, sample_error = sample_proc.communicate()
-            sample_out = sample_out.decode(errors='replace')
-            sample_error = sample_error.decode(errors='replace')
-            
             frida_dict = {
-                "stdout": sample_out,
-                "stderror": sample_error,
-                "returncode": sample_proc.returncode,
-                "has_error": sample_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
-                "functions_user32": functions_user32,
+                "functions_call_trace": functions,
                 "instrumentation_errors": instrumentation_errors,
                 "execution_time": str(timer.formatted_time()),
                 "execution_timedelta": str(timer.as_timedelta())
             }
         except Exception as ex:
-            frida_dict = {
-                "stdout": "Tempo limite esgotado",
-                "stderror": sample_error,
-                "returncode": sample_proc.returncode,
-                "has_error": sample_proc.returncode > 0 and False or True, # O instruction count envia a contagem para a saiída stderror, por tanto se a saída está vazía, a contagem falhou.
-                "functions_user32": functions_user32,
-                "instrumentation_errors": instrumentation_errors,
-                "execution_time": str(timer.formatted_time()),
-                "execution_timedelta": str(timer.as_timedelta())
-            }
+            print("Não foi possivel salvar o resultado do frida.")
 
         print("[Frida] Instrumentação concluída")
 
