@@ -171,3 +171,4 @@ agent/in/
 agent/out/
 agent/compressed/
 agent/server_ip.txt
+!agent/tools/capa/capa-rules/lib
