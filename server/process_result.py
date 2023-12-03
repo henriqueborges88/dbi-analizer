@@ -59,7 +59,7 @@ def process_result(file_path):
             frida_out_path = os.path.join(out_dir, frida_path_zip)
             with open(frida_out_path, 'r') as file_frida:
                 data_frida = json.load(file_frida)
-                frida_success = len(int(data_frida["functions_call_trace"])) > 5
+                frida_success = len(data_frida["functions_call_trace"]) > 5
                 update_frida_tool_success(sample_hash256_or_id, bool(frida_success))
     except Exception as frida_err:
         print("Erro ao processar o Frida.", frida_err)
