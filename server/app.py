@@ -57,7 +57,7 @@ def upload_file():
             filename = file.filename
             ensure_directory_exists('results')
             result_path = os.path.join('results', filename)
-            sample = Sample.query.get(sample_hash_sha256)
+            sample = Sample.query.get(sample_hash)
             if not sample:
                 if not insert_sample(sample_hash):
                     raise Exception(f"Não foi possével regustrar a amostra {sample_hash}")
@@ -68,8 +68,22 @@ def upload_file():
     return render_template('samples/upload_file.html')
 
 @app.route('/samples', methods=['GET'])
+def get_samples():
+    samples = get_all_samples()
+    return jsonify([{'hash_sha256': sample.hash_sha256, 'status': sample.status} for sample in samples])
+
+@app.route('/sample/list', methods=['GET'])
 def get_samples_data():
     samples = get_all_samples()
+
+    samples_pin_success_freq = len([sample.pin_tool_success for sample in samples if sample.pin_tool_success == True])
+    samples_pin_not_success_freq = len([sample.pin_tool_success for sample in samples if sample.pin_tool_success == False])
+
+    samples_dynamorio_success_freq = len([sample.dynamorio_tool_success for sample in samples if sample.dynamorio_tool_success == True])
+    samples_dynamorio_not_success_freq = len([sample.dynamorio_tool_success for sample in samples if sample.dynamorio_tool_success == False])
+
+    samples_frida_success_freq = len([sample.frida_tool_success for sample in samples if sample.frida_tool_success == True])
+    samples_frida_not_success_freq = len([sample.frida_tool_success for sample in samples if sample.frida_tool_success == False])
 
     die_infos = DieInfo.query.all()
     die_name_freq = Counter([info.name for info in die_infos if info.name is not None and info.name != ""])
@@ -84,12 +98,17 @@ def get_samples_data():
     capa_namespace_freq = Counter([info.namespace for info in capa_infos if info.namespace is not None and info.namespace != ""])
 
     return render_template('samples/samples.html', samples=samples, 
+                            samples_pin_success_freq=samples_pin_success_freq,
+                            samples_pin_not_success_freq=samples_pin_not_success_freq,
+                            samples_dynamorio_success_freq=samples_dynamorio_success_freq,
+                            samples_dynamorio_not_success_freq=samples_dynamorio_not_success_freq,
+                            samples_frida_success_freq=samples_frida_success_freq,
+                            samples_frida_not_success_freq=samples_frida_not_success_freq,
                             die_name_freq=die_name_freq, die_type_freq=die_type_freq,
                             yara_rule_freq=yara_rule_freq, yara_namespace_freq=yara_namespace_freq,
                             capa_name_freq=capa_name_freq, capa_namespace_freq=capa_namespace_freq)
-    #return jsonify([{'hash_sha256': sample.hash_sha256, 'status': sample.status} for sample in samples])
 
-@app.route('/sample-details/<hash_sha256>', methods=['GET'])
+@app.route('/sample/details/<hash_sha256>', methods=['GET'])
 def sample_details(hash_sha256):
     sample = Sample.query.filter_by(hash_sha256=hash_sha256).first()
 

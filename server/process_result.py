@@ -6,6 +6,7 @@ from utils import decompress_specific_file, ensure_directory_exists
 from process_capa import process_capa
 from process_yara import process_yara
 from process_die import process_die
+import json
 
 
 def process_result(file_path):

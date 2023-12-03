@@ -19,6 +19,9 @@
                 <a class="nav-link active" id="samples-tab" data-bs-toggle="tab" href="#samples" role="tab" aria-controls="samples" aria-selected="true">Amostras</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" id="instrument-statistics-tab" data-bs-toggle="tab" href="#instrumentStatistics" role="tab" aria-controls="instrumentStatistics" aria-selected="false">Resumo da Instrumentação</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" id="die-statistics-tab" data-bs-toggle="tab" href="#dieStatistics" role="tab" aria-controls="dieStatistics" aria-selected="false">Resumo Die</a>
             </li>
             <li class="nav-item">
@@ -58,6 +61,26 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            <div class="tab-pane fade" id="instrumentStatistics" role="tabpanel" aria-labelledby="instrument-statistics-tab">
+                <h3>Frequência PIN</h3>
+                <ul>
+                    <li>Sucesso: {{ samples_pin_success_freq }}</li>
+                    <li>Falha: {{ samples_pin_not_success_freq }}</li>
+                </ul>
+                <hr>
+                <h3>Frequência Dynamorio</h3>
+                <ul>
+                    <li>Sucesso: {{ samples_dynamorio_success_freq }}</li>
+                    <li>Falha: {{ samples_dynamorio_not_success_freq }}</li>
+                </ul>
+                <hr>
+                <h3>Frequência Frida</h3>
+                <ul>
+                    <li>Sucesso: {{ samples_frida_success_freq }}</li>
+                    <li>Falha: {{ samples_frida_not_success_freq }}</li>
+                </ul>
             </div>
 
             <div class="tab-pane fade" id="dieStatistics" role="tabpanel" aria-labelledby="die-statistics-tab">
