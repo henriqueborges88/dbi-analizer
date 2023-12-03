@@ -55,7 +55,7 @@ def process(result_server_ip="localhost", action=None):
                 hash = calculate_sha256_hash(file_path)
                 out_dir = os.path.join(path_processed, hash)
                 
-                sample_isprocessed = list(filter(lambda x: x["sample_hash_sha256"] == hash, samples)) and True or False
+                sample_isprocessed = list(filter(lambda x: x["hash_sha256"] == hash, samples)) and True or False
                 if sample_isprocessed:
                     file_path = None
                     continue
@@ -91,54 +91,54 @@ def process(result_server_ip="localhost", action=None):
         except Exception as e:
             print(e)
             
-        try:
-            floss_runner = FlossRunner(file_path, out_dir)
-            floss_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     floss_runner = FlossRunner(file_path, out_dir)
+        #     floss_runner.run()
+        # except Exception as e:
+        #     print(e)
         
-        try:
-            capa_runner = CapaRunner(file_path, out_dir)
-            capa_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     capa_runner = CapaRunner(file_path, out_dir)
+        #     capa_runner.run()
+        # except Exception as e:
+        #     print(e)
                     
-        try:
-            yara_runner = YaraRunner(file_path, out_dir)
-            yara_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     yara_runner = YaraRunner(file_path, out_dir)
+        #     yara_runner.run()
+        # except Exception as e:
+        #     print(e)
             
-        try:
-            vivisect_runner = VivisectRunner(file_path, out_dir)
-            vivisect_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     vivisect_runner = VivisectRunner(file_path, out_dir)
+        #     vivisect_runner.run()
+        # except Exception as e:
+        #     print(e)
             
-        try:
-            procmon_runner = ProcmonRunner(file_path, out_dir)
-            procmon_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     procmon_runner = ProcmonRunner(file_path, out_dir)
+        #     procmon_runner.run()
+        # except Exception as e:
+        #     print(e)
 
-        try:
-            pin_runner = PinRunner(file_path, out_dir, architecture)
-            pin_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     pin_runner = PinRunner(file_path, out_dir, architecture)
+        #     pin_runner.run()
+        # except Exception as e:
+        #     print(e)
 
-        try:
-            dynamorio_runner = DynamorioRunner(file_path, out_dir, architecture)
-            dynamorio_runner.run()
-        except Exception as e:
-            print(e)
+        # try:
+        #     dynamorio_runner = DynamorioRunner(file_path, out_dir, architecture)
+        #     dynamorio_runner.run()
+        # except Exception as e:
+        #     print(e)
 
-        try:
-            frida_runner = FridaRunner(file_path, out_dir)
-            frida_runner.run()
-        except Exception as e:
-            print(e)
-        
+        # try:
+        #     frida_runner = FridaRunner(file_path, out_dir)
+        #     frida_runner.run()
+        # except Exception as e:
+        #     print(e)
+        return
         target_file_name = os.path.basename(file_path)
         task_kill(target_file_name, True)
 

@@ -23,7 +23,7 @@ class DynamorioRunner(ToolRunner):
         timer = Timer()
         timer.start()
 
-        dynamorio_run_data_path = os.path.join(out_dir, "dynamorio_run_data.txt")
+        dynamorio_run_data_path = os.path.join(out_dir, "dynamorio_run_data.json")
         dynamorio_tool_out_path = os.path.join(out_dir, 'dynamorio_tool_out.txt')
         if architecture == "32 bits":
             dynamorio_path = os.path.abspath("./tools/DynamoRIO-Windows-9.0.1/bin32/drrun.exe")

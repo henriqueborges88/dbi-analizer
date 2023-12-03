@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_file, render_template
-from controllers import (insert_sample, get_all_samples, update_sample_status,
-                         update_config_item, get_config_item, remove_all_samples)
+from controllers.sample_controller import (insert_sample, get_all_samples, update_sample_status, remove_all_samples)
+from controllers.config_controller import (update_config_item, get_config_item)
 from utils import compress_folder, delete_all_files_and_folders, ensure_directory_exists, write_ip_to_file
 import os
 import threading
@@ -8,6 +8,10 @@ from run_analysis import run_analysis
 from virtualbox_manager import configure_hostonly_network
 from models import db
 from flask_migrate import Migrate
+from models import *
+from process_result import process_result, process_all_results
+from models import Sample
+from collections import Counter
 
 SERVER_IP="192.168.56.10"
 
@@ -17,13 +21,16 @@ app.config['TIMEOUT'] = 300
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'malware_data.db')
 db.init_app(app)
+
+# When use flask_migrate to create database structure comment db.create_all()
 with app.app_context():
     db.create_all()
+
 migrate = Migrate(app, db)
 
-configure_hostonly_network(SERVER_IP)
 write_ip_to_file(SERVER_IP)
 
+configure_hostonly_network(SERVER_IP)
 thread_analisys = threading.Thread(target=run_analysis, name='Thread Analisys', args=[app, SERVER_IP], daemon=True)
 thread_analisys.start()
 
@@ -39,7 +46,7 @@ def register_sample():
         if insert_sample(sample_hash):
             return f'Hash "{sample_hash}" registrado com sucesso.'
         return f'Hash "{sample_hash}" já existe.'
-    return render_template('register_sample.html')
+    return render_template('samples/register_sample.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -50,16 +57,57 @@ def upload_file():
             filename = file.filename
             ensure_directory_exists('results')
             result_path = os.path.join('results', filename)
+            sample = Sample.query.get(sample_hash_sha256)
+            if not sample:
+                if not insert_sample(sample_hash):
+                    raise Exception(f"Não foi possével regustrar a amostra {sample_hash}")
             file.save(result_path)
-            update_sample_status(sample_hash, 'processed')
+            process_result(result_path)
             return f'Arquivo "{filename}" com hash "{sample_hash}" foi enviado.'
         return 'Nenhum arquivo enviado.'
-    return render_template('upload_file.html')
+    return render_template('samples/upload_file.html')
 
 @app.route('/samples', methods=['GET'])
 def get_samples_data():
     samples = get_all_samples()
-    return jsonify([{'id': sample.id, 'sample_hash_sha256': sample.sample_hash_sha256, 'status': sample.status} for sample in samples])
+
+    die_infos = DieInfo.query.all()
+    die_name_freq = Counter([info.name for info in die_infos if info.name is not None and info.name != ""])
+    die_type_freq = Counter([info.type for info in die_infos if info.type is not None and info.type != ""])
+
+    yara_infos = YaraInfo.query.all()
+    yara_rule_freq = Counter([info.rule for info in yara_infos if info.rule is not None and info.rule != ""])
+    yara_namespace_freq = Counter([info.namespace for info in yara_infos if info.namespace is not None and info.namespace != ""])
+
+    capa_infos = CapaInfo.query.all()
+    capa_name_freq = Counter([info.name for info in capa_infos if info.name is not None and info.name != ""])
+    capa_namespace_freq = Counter([info.namespace for info in capa_infos if info.namespace is not None and info.namespace != ""])
+
+    return render_template('samples/samples.html', samples=samples, 
+                            die_name_freq=die_name_freq, die_type_freq=die_type_freq,
+                            yara_rule_freq=yara_rule_freq, yara_namespace_freq=yara_namespace_freq,
+                            capa_name_freq=capa_name_freq, capa_namespace_freq=capa_namespace_freq)
+    #return jsonify([{'hash_sha256': sample.hash_sha256, 'status': sample.status} for sample in samples])
+
+@app.route('/sample-details/<hash_sha256>', methods=['GET'])
+def sample_details(hash_sha256):
+    sample = Sample.query.filter_by(hash_sha256=hash_sha256).first()
+
+    if sample is None:
+        abort(404)
+
+    die_infos = sample.die_infos
+    yara_infos = sample.yara_infos
+    capa_infos = sample.capa_infos
+
+    return render_template('samples/sample_details.html', sample=sample, 
+                           die_infos=die_infos, yara_infos=yara_infos, 
+                           capa_infos=capa_infos)
+
+@app.route('/process-all-samples', methods=['GET'])
+def process_all_samples():
+    precessed_results = process_all_results()
+    return jsonify(precessed_results)
 
 @app.route('/clear-samples', methods=['GET'])
 def clear_samples():
@@ -94,7 +142,8 @@ def analysis():
     if analysis_enabled == "1":
         analysis_action = "0"
         button_text = 'Parar'
-    return render_template('analysis.html', analysis_action=analysis_action, vm_name=vm_name, snapshot_name=snapshot_name, button_text=button_text)
+
+    return render_template('analysis/analysis.html', analysis_action=analysis_action, vm_name=vm_name, snapshot_name=snapshot_name, button_text=button_text)
 
 @app.route('/disable-analysis', methods=['GET'])
 def disable_analysis():

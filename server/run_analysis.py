@@ -1,6 +1,6 @@
 # analysis.py
 import time
-from controllers import get_config_item
+from controllers.config_controller import get_config_item
 from virtualbox_manager import (configure_hostonly_network, configure_vm_hostonly_network,
                                 restore_vm_snapshot, start_vm, poweroff_vm, get_vm_state)
 
