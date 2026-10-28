@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_file, render_template, abort
+from werkzeug.utils import secure_filename
 from controllers.sample_controller import (insert_sample, get_all_samples, update_sample_status, remove_all_samples)
 from controllers.config_controller import (update_config_item, get_config_item)
 from utils import compress_folder, delete_all_files_and_folders, ensure_directory_exists, write_ip_to_file
@@ -67,7 +68,7 @@ def upload_file():
             abort(400, description='O arquivo enviado deve ser um ZIP válido.')
         file.stream.seek(0)
         results_directory = ensure_directory_exists(app.config.get('RESULTS_DIRECTORY', 'results'))
-        filename = f'{sample_hash}.zip'
+        filename = secure_filename(f'{sample_hash}.zip')
         result_path = os.path.join(results_directory, filename)
         if Sample.query.filter_by(hash_sha256=sample_hash).first() is None:
             insert_sample(sample_hash)
