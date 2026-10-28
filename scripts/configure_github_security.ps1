@@ -103,7 +103,7 @@ Invoke-RepositoryApi -Method PATCH -Endpoint $apiRoot -Body @{
 } | Out-Null
 Invoke-RepositoryApi -Method PUT -Endpoint "$apiRoot/private-vulnerability-reporting" | Out-Null
 
-# Apply to administrators as well; no direct-push or PR-bypass exceptions.
+# Administrators may bypass branch protection; contributors require reviewed PRs.
 $reviewRequirements = @{
     dismiss_stale_reviews = $true
     require_code_owner_reviews = $true
@@ -115,7 +115,7 @@ if ($repositoryInfo.owner.type -eq 'Organization') {
 }
 Invoke-RepositoryApi -Method PUT -Endpoint "$apiRoot/branches/main/protection" -Body @{
     required_status_checks = $null
-    enforce_admins = $true
+    enforce_admins = $false
     required_pull_request_reviews = $reviewRequirements
     restrictions = $null
     required_conversation_resolution = $true
@@ -135,7 +135,7 @@ if (-not $WhatIfPreference) {
     $reviews = $protection.required_pull_request_reviews
     Assert-Control ($reviews.required_approving_review_count -ge 1 -and
         $reviews.require_code_owner_reviews -and $reviews.dismiss_stale_reviews) 'Required code owner review and stale approval dismissal'
-    Assert-Control $protection.enforce_admins.enabled 'Branch protection applies to administrators'
+    Assert-Control (-not $protection.enforce_admins.enabled) 'Administrators are exempt from branch protection'
     Assert-Control $protection.required_conversation_resolution.enabled 'Review conversations must be resolved'
     Assert-Control (-not $protection.allow_force_pushes.enabled -and
         -not $protection.allow_deletions.enabled) 'Force pushes and main deletion blocked'
