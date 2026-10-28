@@ -80,7 +80,7 @@ if (-not $WhatIfPreference) {
 }
 
 if ($repositoryInfo.visibility -ne 'public') {
-    Write-Warning 'Repository is private. Public-only controls remain pending: main branch protection, external workflow approval, secret scanning, push protection, and private vulnerability reporting. Visibility was not changed. Rerun after publication and after CODEOWNERS is merged into main.'
+    Write-Warning 'Repository is private. Public-only controls remain pending: main branch protection, external workflow approval, secret scanning, push protection, private vulnerability reporting, and CodeQL result uploads. Visibility was not changed. Rerun after publication and after CODEOWNERS is merged into main.'
     return
 }
 

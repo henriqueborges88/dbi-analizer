@@ -49,7 +49,7 @@ External workflow approval is separate from code owner approval. A maintainer ca
 | Dependabot alerts | Enable repository vulnerability alerts. |
 | Dependabot security updates | Enable automatic PRs for vulnerable dependencies. |
 | Dependabot version updates | `.github/dependabot.yml` checks both Python requirements files and GitHub Actions weekly. |
-| Code scanning | `.github/workflows/codeql.yml` analyzes Python on pushes and PRs to `main`, weekly, and on manual dispatch. Vendored tools, samples, generated results, and virtual environments are excluded. |
+| Code scanning | Once the repository is public, `.github/workflows/codeql.yml` analyzes Python on pushes and PRs to `main`, weekly, and on manual dispatch. The job is explicitly skipped while the repository is private. Vendored tools, samples, generated results, and virtual environments are excluded. |
 | Secret scanning | Enable repository secret scanning and push protection. |
 | Private vulnerability reporting | Enable private reports and follow `SECURITY.md`. |
 
@@ -81,6 +81,8 @@ On the current free plan, GitHub rejects branch protection for this private repo
 ## Verify in GitHub
 
 Check **Settings > Branches**, **Settings > Actions > General**, and the repository security settings after setup. Confirm that CODEOWNERS is present on `main`, review the Security tab for scanning results, and inspect the first CodeQL run after the workflow has been merged and code scanning is available.
+
+The initial private-repository validation successfully analyzed 27 Python and 5 HTML files, but GitHub rejected the result upload because code scanning was not enabled for the private repository. The public-only job condition prevents that unsupported upload before publication; a successful upload still needs verification after publication. Trigger **CodeQL > Run workflow** after publication if no new push or PR event occurs.
 
 ## GitHub documentation
 
