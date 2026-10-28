@@ -3,6 +3,8 @@ from controllers.sample_controller import (insert_sample, get_all_samples, updat
 from controllers.config_controller import (update_config_item, get_config_item)
 from utils import compress_folder, delete_all_files_and_folders, ensure_directory_exists, write_ip_to_file
 import os
+import re
+import zipfile
 import threading
 from run_analysis import run_analysis
 from virtualbox_manager import configure_hostonly_network
@@ -39,32 +41,39 @@ def index():
     # Aqui, exibir uma lista de amostras ou alguma outra informação relevante.
     return 'Bem-vindo ao sistema de gestão de amostras.'
 
+
+def normalized_sample_hash(value):
+    if not re.fullmatch(r'[a-fA-F0-9]{64}', value or ''):
+        abort(400, description='Informe um hash SHA-256 válido, com 64 caracteres hexadecimais.')
+    return value.lower()
+
 @app.route('/register', methods=['GET', 'POST'])
 def register_sample():
     if request.method == 'POST':
-        sample_hash = request.form.get('hash_sha256')
+        sample_hash = normalized_sample_hash(request.form.get('hash_sha256'))
         if insert_sample(sample_hash):
-            return f'Hash "{sample_hash}" registrado com sucesso.'
-        return f'Hash "{sample_hash}" já existe.'
+            return jsonify(message='Hash registrado com sucesso.', hash_sha256=sample_hash)
+        return jsonify(message='Hash já existe.', hash_sha256=sample_hash)
     return render_template('samples/register_sample.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         file = request.files.get('file')
-        sample_hash = request.form.get('hash_sha256')
-        if file and sample_hash:
-            filename = file.filename
-            ensure_directory_exists('results')
-            result_path = os.path.join('results', filename)
-            sample = Sample.query.get(sample_hash)
-            if not sample:
-                if not insert_sample(sample_hash):
-                    raise Exception(f"Não foi possével regustrar a amostra {sample_hash}")
-            file.save(result_path)
-            process_result(result_path)
-            return f'Arquivo "{filename}" com hash "{sample_hash}" foi enviado.'
-        return 'Nenhum arquivo enviado.'
+        sample_hash = normalized_sample_hash(request.form.get('hash_sha256'))
+        if not file:
+            abort(400, description='Envie o arquivo ZIP dos resultados.')
+        if not zipfile.is_zipfile(file.stream):
+            abort(400, description='O arquivo enviado deve ser um ZIP válido.')
+        file.stream.seek(0)
+        results_directory = ensure_directory_exists(app.config.get('RESULTS_DIRECTORY', 'results'))
+        filename = f'{sample_hash}.zip'
+        result_path = os.path.join(results_directory, filename)
+        if Sample.query.filter_by(hash_sha256=sample_hash).first() is None:
+            insert_sample(sample_hash)
+        file.save(result_path)
+        process_result(result_path)
+        return jsonify(message='Resultados recebidos.', filename=filename, hash_sha256=sample_hash)
     return render_template('samples/upload_file.html')
 
 @app.route('/samples', methods=['GET'])
@@ -178,12 +187,12 @@ def sample_tools():
 
 @app.route('/process-all-samples', methods=['GET'])
 def process_all_samples():
-    precessed_results = process_all_results()
+    precessed_results = process_all_results(app.config.get('RESULTS_DIRECTORY', 'results'))
     return jsonify(precessed_results)
 
 @app.route('/clear-samples', methods=['GET'])
 def clear_samples():
-    delete_all_files_and_folders('results')
+    delete_all_files_and_folders(app.config.get('RESULTS_DIRECTORY', 'results'))
     remove_all_samples()
     return 'Todos as amostras e registros foram removidos com sucesso.'
 

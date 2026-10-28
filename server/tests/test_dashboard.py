@@ -1,12 +1,15 @@
 """Dashboard regressions using SQLite in memory; never start VirtualBox or the agent."""
 import importlib.util
+import io
 from contextlib import contextmanager
 from html.parser import HTMLParser
 from pathlib import Path
 import sys
+from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
+import zipfile
 
 from flask import template_rendered
 
@@ -98,7 +101,7 @@ class DashboardTests(unittest.TestCase):
         return [sample.hash_sha256 for sample in contexts[-1]['samples']]
 
     def test_empty_pages_render(self):
-        for path in ['/sample/list', '/sample/tools', '/analysis']:
+        for path in ['/sample/list', '/sample/tools', '/analysis', '/upload', '/register']:
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
@@ -211,6 +214,52 @@ class DashboardTests(unittest.TestCase):
 
     def test_unknown_sample_returns_not_found(self):
         self.assertEqual(self.client.get('/sample/details/' + 'f' * 64).status_code, 404)
+
+    def test_register_rejects_invalid_hashes(self):
+        for value in ['', '../outside', '<script>alert(1)</script>', 'g' * 64, 'a' * 63]:
+            with self.subTest(value=value):
+                self.assertEqual(self.client.post('/register', data={'hash_sha256': value}).status_code, 400)
+        self.assertEqual(models.Sample.query.count(), 0)
+
+    def test_register_normalizes_hash_and_returns_json(self):
+        response = self.client.post('/register', data={'hash_sha256': 'A' * 64})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json['hash_sha256'], 'a' * 64)
+        self.assertEqual(response.mimetype, 'application/json')
+
+    def test_upload_ignores_client_filename_and_stays_in_results_directory(self):
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, 'w') as output:
+            output.writestr('harmless.txt', 'fixture')
+        expected_bytes = archive.getvalue()
+        archive.seek(0)
+        module = sys.modules[APP.import_name]
+        with TemporaryDirectory(prefix='dbi-upload-test-') as directory, \
+                patch.dict(APP.config, {'RESULTS_DIRECTORY': directory}), \
+                patch.object(module, 'process_result') as process:
+            response = self.client.post('/upload', data={
+                'hash_sha256': 'A' * 64,
+                'file': (archive, '../../outside.zip'),
+            })
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json['filename'], 'a' * 64 + '.zip')
+            files = list(Path(directory).iterdir())
+            self.assertEqual([file.name for file in files], ['a' * 64 + '.zip'])
+            self.assertEqual(files[0].read_bytes(), expected_bytes)
+            process.assert_called_once_with(str(files[0]))
+
+    def test_upload_rejects_invalid_hashes_and_non_zip_files_without_processing(self):
+        module = sys.modules[APP.import_name]
+        with TemporaryDirectory(prefix='dbi-upload-test-') as directory, \
+                patch.dict(APP.config, {'RESULTS_DIRECTORY': directory}), \
+                patch.object(module, 'process_result') as process:
+            for value in ['../outside', 'a' * 64]:
+                response = self.client.post('/upload', data={
+                    'hash_sha256': value, 'file': (io.BytesIO(b'not a ZIP'), 'file.zip'),
+                })
+                self.assertEqual(response.status_code, 400)
+            self.assertEqual(list(Path(directory).iterdir()), [])
+            process.assert_not_called()
 
 
 if __name__ == '__main__':
