@@ -58,9 +58,9 @@ def compress_folder(source_folder, zip_file):
 
                 zipf.write(full_path, relative_path)
 
-def count_analisys_target(path_analisys):
+def count_analysis_target(path_analysis):
     count = 0
-    for current_folder, _, files in os.walk(path_analisys):
+    for current_folder, _, files in os.walk(path_analysis):
         for file in files:
             file_path = os.path.join(current_folder, file)
             if not os.path.isfile(file_path):

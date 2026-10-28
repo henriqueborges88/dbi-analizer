@@ -31,8 +31,8 @@ migrate = Migrate(app, db)
 write_ip_to_file(SERVER_IP)
 
 configure_hostonly_network(SERVER_IP)
-thread_analisys = threading.Thread(target=run_analysis, name='Thread Analisys', args=[app, SERVER_IP], daemon=True)
-thread_analisys.start()
+thread_analysis = threading.Thread(target=run_analysis, name='Thread Analysis', args=[app, SERVER_IP], daemon=True)
+thread_analysis.start()
 
 @app.route('/')
 def index():
