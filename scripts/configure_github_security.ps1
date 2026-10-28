@@ -32,7 +32,7 @@ function Invoke-RepositoryApi {
         $taskResponse = & gh @taskArguments
     }
     if ($LASTEXITCODE -ne 0) {
-        throw "GitHub API failed: $Method $Endpoint"
+        throw "GitHub API failed: $Method $Endpoint. $($taskResponse -join ' ')"
     }
     if ($taskResponse) {
         return ($taskResponse -join "`n" | ConvertFrom-Json -AsHashtable)
@@ -104,15 +104,19 @@ Invoke-RepositoryApi -Method PATCH -Endpoint $apiRoot -Body @{
 Invoke-RepositoryApi -Method PUT -Endpoint "$apiRoot/private-vulnerability-reporting" | Out-Null
 
 # Apply to administrators as well; no direct-push or PR-bypass exceptions.
+$reviewRequirements = @{
+    dismiss_stale_reviews = $true
+    require_code_owner_reviews = $true
+    required_approving_review_count = 1
+}
+# GitHub rejects actor restrictions, even empty ones, on personal repositories.
+if ($repositoryInfo.owner.type -eq 'Organization') {
+    $reviewRequirements.bypass_pull_request_allowances = @{ users = @(); teams = @(); apps = @() }
+}
 Invoke-RepositoryApi -Method PUT -Endpoint "$apiRoot/branches/main/protection" -Body @{
     required_status_checks = $null
     enforce_admins = $true
-    required_pull_request_reviews = @{
-        dismiss_stale_reviews = $true
-        require_code_owner_reviews = $true
-        required_approving_review_count = 1
-        bypass_pull_request_allowances = @{ users = @(); teams = @(); apps = @() }
-    }
+    required_pull_request_reviews = $reviewRequirements
     restrictions = $null
     required_conversation_resolution = $true
     allow_force_pushes = $false
