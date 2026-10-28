@@ -38,7 +38,7 @@ class SampleUploader:
         else:
             print('Erro ao enviar o arquivo.')
     
-    def disable_analisys(self):
-        url = f'{self.base_url}/disable-analisys'
+    def disable_analysis(self):
+        url = f'{self.base_url}/disable-analysis'
 
         response = requests.get(url)

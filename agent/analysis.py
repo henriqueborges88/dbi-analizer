@@ -1,6 +1,6 @@
 import json
 import os
-from utils import calculate_sha256_hash, compress_folder, task_kill, count_analisys_target
+from utils import calculate_sha256_hash, compress_folder, task_kill, count_analysis_target
 from sample_data import SampleUploader
 from tool_die import DieRunner
 from tool_floss import FlossRunner
@@ -24,12 +24,12 @@ def process(result_server_ip="localhost", action=None):
         timer = Timer()
         timer.start()
         file_path = None 
-        path_analisys = os.path.abspath("./in/")
+        path_analysis = os.path.abspath("./in/")
         path_processed = os.path.abspath("./out/")
         path_compressed = os.path.abspath("./compressed/")
 
-        if not os.path.exists(path_analisys):
-            os.mkdir(path_analisys)
+        if not os.path.exists(path_analysis):
+            os.mkdir(path_analysis)
 
         if not os.path.exists(path_processed):
             os.mkdir(path_processed)
@@ -42,7 +42,7 @@ def process(result_server_ip="localhost", action=None):
         #print("Amostras processadas", len(samples))
 
         index = 0
-        for current_folder, _, files in os.walk(path_analisys):
+        for current_folder, _, files in os.walk(path_analysis):
             for file in files:
                 file_path = os.path.join(current_folder, file                                                                                                                                 )
                 if not os.path.isfile(file_path):
@@ -62,11 +62,11 @@ def process(result_server_ip="localhost", action=None):
                 break
 
         if file_path == None:
-            sample_uploader.disable_analisys()
+            sample_uploader.disable_analysis()
             print("Análise concluída.")
             exit(0)
 
-        print('Processando o arquivo ' + str(index) + ' de ' + str(count_analisys_target(path_analisys)))
+        print('Processando o arquivo ' + str(index) + ' de ' + str(count_analysis_target(path_analysis)))
 
         # Registrar o arquivo antes de analisar, se a análise falhar em algum ponto evitará que o arquivo seja analisado novamente 
         sample_uploader.register_sample(hash)
