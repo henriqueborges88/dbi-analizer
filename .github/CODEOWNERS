@@ -1,0 +1,4 @@
+# This file must be present on the pull request's base branch.
+# Required code owner reviews are enforced through branch protection settings.
+# See docs/repository-security.md for configuration and review limitations.
+* @henriqueborges88
