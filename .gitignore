@@ -164,7 +164,7 @@ pin.log
 server/tmp/
 server/results/
 server/migrations/
-server/malware_data.db
+server/malware_data*.db*
 malware_data.db
 agent/tmp/
 agent/in/

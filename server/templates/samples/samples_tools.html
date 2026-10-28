@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% from "samples/_macros.html" import filter_link, frequency_chart %}
+
+{% block content %}
+    <div class="container pt-4">
+        <h3 class="m-3">Ferramentas de Análise - Resultados</h3>
+        <!-- Abas de Navegação -->
+        <ul class="nav nav-tabs" id="mainTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="die-tab" data-bs-toggle="tab" href="#dieTab" role="tab" aria-controls="dieTab" aria-selected="true">Resumo Die</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="yara-tab" data-bs-toggle="tab" href="#yaraTab" role="tab" aria-controls="yaraTab" aria-selected="false">Resumo Yara</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="capa-tab" data-bs-toggle="tab" href="#capaTab" role="tab" aria-controls="capaTab" aria-selected="false">Resumo Capa</a>
+            </li>
+        </ul>
+
+        <!-- Conteúdo das Abas Principais -->
+        <div class="tab-content p-3" id="mainTabContent">
+            <!-- Abas de Resumo Die -->
+            <div class="tab-pane fade show active" id="dieTab" role="tabpanel" aria-labelledby="die-tab">
+                <ul class="nav nav-tabs" id="dieSubTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="die-name-tab" data-bs-toggle="tab" href="#dieName" role="tab" aria-controls="dieName" aria-selected="true">Frequência por Nome</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="die-type-tab" data-bs-toggle="tab" href="#dieType" role="tab" aria-controls="dieType" aria-selected="false">Frequência por Tipo</a>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="dieSubTabContent">
+                    <div class="tab-pane fade show active" id="dieName" role="tabpanel" aria-labelledby="die-name-tab">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>Frequência por Nome</h3>
+                                <table class="table table-striped table-bordered" id="dieByNameTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Q. Amostras</th>
+                                            <th>Q. Ocorrências</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for name, value in die_name.items() %}
+                                        <tr>
+                                            <td>{{ filter_link('die', 'name', name) }}</td>
+                                            <td>{{ value["die_name_sample_freq"] }}</td>
+                                            <td>{{ value["die_name_freq"] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="dieType" role="tabpanel" aria-labelledby="die-type-tab">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3>Frequência por Tipo</h3>
+                                <table class="table table-striped table-bordered" id="dieByTypeTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Q. Amostras</th>
+                                            <th>Q. Ocorrências</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for type, value in die_type.items() %}
+                                        <tr>
+                                            <td>{{ filter_link('die', 'type', type) }}</td>
+                                            <td>{{ value["die_type_sample_freq"] }}</td>
+                                            <td>{{ value["die_type_freq"] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-4">
+                                {{ frequency_chart('dieTypeChart', die_type, 'die_type_freq') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abas de Resumo Yara -->
+            <div class="tab-pane fade" id="yaraTab" role="tabpanel" aria-labelledby="yara-tab">
+                <ul class="nav nav-tabs" id="yaraSubTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="yara-rule-tab" data-bs-toggle="tab" href="#yaraRule" role="tab" aria-controls="yaraRule" aria-selected="true">Frequência por Regra</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="yara-namespace-tab" data-bs-toggle="tab" href="#yaraNamespace" role="tab" aria-controls="yaraNamespace" aria-selected="false">Frequência por Namespace</a>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="yaraSubTabContent">
+                    <div class="tab-pane fade show active" id="yaraRule" role="tabpanel" aria-labelledby="yara-rule-tab">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>Frequência por Regra</h3>
+                                <table class="table table-striped table-bordered" id="yareByRuleTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Regra</th>
+                                            <th>Q. Amostras</th>
+                                            <th>Q. Ocorrências</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for rule, value in yara_rule.items() %}
+                                        <tr>
+                                            <td>{{ filter_link('yara', 'rule', rule) }}</td>
+                                            <td>{{ value["yara_rule_sample_freq"] }}</td>
+                                            <td>{{ value["yara_rule_freq"] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="yaraNamespace" role="tabpanel" aria-labelledby="yara-namespace-tab">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3>Frequência por Namespace</h3>
+                                <table class="table table-striped table-bordered" id="yareByNamespaceTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <th>Q. Amostras</th>
+                                            <th>Q. Ocorrências</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for namespace, value in yara_namespace.items() %}
+                                        <tr>
+                                            <td>{{ filter_link('yara', 'namespace', namespace) }}</td>
+                                            <td>{{ value["yara_namespace_sample_freq"] }}</td>
+                                            <td>{{ value["yara_namespace_freq"] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-4">
+                                {{ frequency_chart('yaraNamespaceChart', yara_namespace, 'yara_namespace_freq') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abas de Resumo Capa -->
+            <div class="tab-pane fade" id="capaTab" role="tabpanel" aria-labelledby="capa-tab">
+                <ul class="nav nav-tabs" id="capaSubTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="capa-name-tab" data-bs-toggle="tab" href="#capaName" role="tab" aria-controls="capaName" aria-selected="true">Frequência por Nome</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="capa-namespace-tab" data-bs-toggle="tab" href="#capaNamespace" role="tab" aria-controls="capaNamespace" aria-selected="false">Frequência por Categoria</a>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="capaSubTabContent">
+                    <div class="tab-pane fade show active" id="capaName" role="tabpanel" aria-labelledby="capa-name-tab">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>Frequência por Nome</h3>
+                                <table class="table table-striped table-bordered" id="capaByNameTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Categoria</th>
+                                            <th>Q. Amostras</th>
+                                            <th>Q. Ocorrências</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for name, value in capa_name.items() %}
+                                        <tr>
+                                            <td>{{ filter_link('capa', 'name', name) }}</td>
+                                            <td>{% for namespace in capa_name_categories[name]|sort %}
+                                                {{ filter_link('capa', 'namespace', namespace) }}{% if not loop.last %}; {% endif %}
+                                            {% endfor %}</td>
+                                            <td>{{ value["capa_name_sample_freq"] }}</td>
+                                            <td>{{ value["capa_name_freq"] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="capaNamespace" role="tabpanel" aria-labelledby="capa-namespace-tab">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3>Frequência por Categoria</h3>
+                                <table class="table table-striped table-bordered" id="capaByNamespaceTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <th>Q. Amostras</th>
+                                            <th>Q. Ocorrências</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for namespace, value in capa_namespace.items() %}
+                                        <tr>
+                                            <td>{{ filter_link('capa', 'namespace', namespace) }}</td>
+                                            <td>{{ value["capa_namespace_sample_freq"] }}</td>
+                                            <td>{{ value["capa_namespace_freq"] }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-4">
+                                {{ frequency_chart('capaNamespaceChart', capa_namespace, 'capa_namespace_freq') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+
+            var datatablesDefaultConfig = {
+                dom: 'Bfrtip',
+                buttons: [
+                    'colvis'
+                ],
+                language: {
+                    url: "{{ url_for('static', filename='DataTables/i18n/pt-BR.json') }}",
+                },
+                select: true,
+                pageLength: 50
+            };
+
+            $('#dieByNameTable').DataTable(datatablesDefaultConfig);
+            $('#dieByTypeTable').DataTable(datatablesDefaultConfig);
+            $('#yareByRuleTable').DataTable(datatablesDefaultConfig);
+            $('#yareByNamespaceTable').DataTable(datatablesDefaultConfig);
+            $('#capaByNameTable').DataTable(datatablesDefaultConfig);
+            $('#capaByNamespaceTable').DataTable(datatablesDefaultConfig);
+
+        });
+    </script>
+{% endblock %}
