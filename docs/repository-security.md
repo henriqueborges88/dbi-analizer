@@ -6,16 +6,16 @@ This document describes the intended policy and how to apply it. Repository file
 
 | Control | Required setting |
 | --- | --- |
-| Changes to `main` | Pull requests required; direct pushes blocked. |
-| Review | At least one approval and review from a code owner required. |
+| Changes to `main` | Pull requests required for contributors; administrators may bypass protection. |
+| Review | At least one approval and review from a code owner required for merges without administrator bypass. |
 | Code owner | `@henriqueborges88` for every path. |
 | New commits | Dismiss stale approvals when new code changes are pushed. |
 | Discussions | All review conversations must be resolved before merging. |
-| Administrators | Branch protection applies to administrators; no PR bypass allowances. |
+| Administrators | Exempt from branch protection permanently (`enforce_admins: false`); no additional user, team, or app bypass allowances. |
 | Force pushes | Disabled. |
 | Branch deletion | Disabled. |
 
-These restrictions are configured through GitHub branch protection, not through CODEOWNERS alone. Repository administrators can still edit repository settings; applying the rules to administrators prevents bypassing them while those settings remain in force.
+These restrictions are configured through GitHub branch protection, not through CODEOWNERS alone. Administrators are exempt and can merge PRs without the required approval. This exemption applies to branch protection generally, so repository maintainers should continue using PRs for routine changes. The setup script preserves the administrator exemption when rerun.
 
 ## How CODEOWNERS works
 
@@ -29,7 +29,7 @@ The wildcard covers the entire repository, including CODEOWNERS itself and workf
 
 CODEOWNERS identifies reviewers; the **Require review from Code Owners** branch protection setting makes their approval mandatory. If more patterns are added later, the last matching pattern takes precedence. Listing multiple owners on a matching line allows any one of those owners to satisfy the owner-review requirement.
 
-GitHub does not allow authors to approve their own PRs. With `@henriqueborges88` as the sole owner and no administrator bypass, a PR authored by that account cannot satisfy this policy. Use another contributor to author the PR, or explicitly revise the ownership policy before adopting a different process. The setup script does not silently add an exception.
+GitHub does not allow authors to approve their own PRs. With `@henriqueborges88` as the sole owner, a PR authored by that account cannot receive a valid self-approval. The account can use its administrator exemption to merge its own PR without recording an approving review. Contributor PRs still require the owner's approval when merged without administrator bypass.
 
 ## GitHub Actions
 
