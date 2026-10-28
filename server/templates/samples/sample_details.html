@@ -1,43 +1,37 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes da Amostra</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='Bootstrap5/css/bootstrap.min.css') }}">
+{% extends "base.html" %}
+{% from "samples/_macros.html" import filter_link %}
 
-    <link href="{{ url_for('static', filename='DataTables/datatables.min.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='DataTables/datatables.min.js') }} "></script>
-</head>
-<body>
+{% block content %}
     <div class="container pt-4">
-        <a class="btn btn-secondary mt-2 mb-2" href="{{ url_for('get_samples_data') }}">Voltar</a>
+
+        <a class="btn btn-secondary mt-2 mb-2" href="{{ url_for('sample_list_tools') }}">Voltar</a>
+
         <h3 class="p-3">Detalhes da Amostra: {{ sample.hash_sha256 }}</h3>
 
         <!-- Abas de Navegação -->
         <ul class="nav nav-tabs" id="sampleTab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="instrumentation-info-tab" data-toggle="tab" href="#instrumentationInfo" role="tab" aria-controls="instrumentationInfo" aria-selected="false">Resultados dos Instrumentadores</a>
+                <a class="nav-link active" id="instrumentation-info-tab" data-bs-toggle="tab" href="#instrumentationInfo" role="tab" aria-controls="instrumentationInfo" aria-selected="true">Resultados dos Instrumentadores</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="die-info-tab" data-toggle="tab" href="#dieInfo" role="tab" aria-controls="dieInfo" aria-selected="true">Die Info</a>
+                <a class="nav-link" id="die-info-tab" data-bs-toggle="tab" href="#dieInfo" role="tab" aria-controls="dieInfo" aria-selected="false">Die Info</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="yara-info-tab" data-toggle="tab" href="#yaraInfo" role="tab" aria-controls="yaraInfo" aria-selected="false">Yara Info</a>
+                <a class="nav-link" id="yara-info-tab" data-bs-toggle="tab" href="#yaraInfo" role="tab" aria-controls="yaraInfo" aria-selected="false">Yara Info</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="capa-info-tab" data-toggle="tab" href="#capaInfo" role="tab" aria-controls="capaInfo" aria-selected="false">Capa Info</a>
+                <a class="nav-link" id="capa-info-tab" data-bs-toggle="tab" href="#capaInfo" role="tab" aria-controls="capaInfo" aria-selected="false">Capa Info</a>
             </li>
         </ul>
 
         <div class="tab-content p-3" id="sampleTabContent">
             <!-- Resultado dos Instrumentadores -->
             <div class="tab-pane fade show active" id="instrumentationInfo" role="tabpanel" aria-labelledby="instrumentation-info-tab">
-                Pin:  {{ sample.pin_tool_success and "Sucesso" or "Falha" }} <br>    
+                Pin:  {{ sample.pin_tool_success and "Sucesso" or "Falha" }} <br>
                 Dynamorio:  {{ sample.dynamorio_tool_success and "Sucesso" or "Falha" }} <br>
                 Frida:  {{ sample.frida_tool_success and "Sucesso" or "Falha" }}
             </div>
-            
+
             <!-- Die Info -->
             <div class="tab-pane fade" id="dieInfo" role="tabpanel" aria-labelledby="die-info-tab">
                 <table class="table table-striped table-bordered" id="dieInfoTable" style="width:100%">
@@ -55,19 +49,19 @@
                     <tbody>
                         {% for die_info in sample.die_infos %}
                         <tr>
-                            <td>{{ die_info.name }}</td>
+                            <td>{{ filter_link('die', 'name', die_info.name) }}</td>
                             <td>{{ die_info.filetype }}</td>
                             <td>{{ die_info.info }}</td>
                             <td>{{ die_info.parentfilepart }}</td>
                             <td>{{ die_info.string }}</td>
-                            <td>{{ die_info.type }}</td>
+                            <td>{{ filter_link('die', 'type', die_info.type) }}</td>
                             <td>{{ die_info.version }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Yara Info -->
             <div class="tab-pane fade" id="yaraInfo" role="tabpanel" aria-labelledby="yara-info-tab">
                 <table class="table table-striped table-bordered" id="yaraInfoTable" style="width:100%">
@@ -76,7 +70,7 @@
                             <th>Regra</th>
                             <th>Descrição</th>
                             <th>Autor</th>
-                            <th>Outor Original</th>
+                            <th>Autor Original</th>
                             <th>Referência</th>
                             <th>Tags (Etiquetas)</th>
                             <th>Namespace</th>
@@ -86,20 +80,20 @@
                     <tbody>
                         {% for yara_info in sample.yara_infos %}
                         <tr class="data">
-                            <td>{{ yara_info.rule }}</td>
+                            <td>{{ filter_link('yara', 'rule', yara_info.rule) }}</td>
                             <td>{{ yara_info.description }}</td>
                             <td>{{ yara_info.author }}</td>
                             <td>{{ yara_info.original_author }}</td>
-                            <td>{{ yara_info.reference }}</td>
+                            <td>{{ yara_info.reference or '' }}</td>
                             <td>{{ yara_info.tags }}</td>
-                            <td>{{ yara_info.namespace }}</td>
+                            <td>{{ filter_link('yara', 'namespace', yara_info.namespace) }}</td>
                             <td>{{ yara_info.date }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            
+
             <!-- Capa Info -->
             <div class="tab-pane fade" id="capaInfo" role="tabpanel" aria-labelledby="capa-info-tab">
                 <table class="table table-striped table-bordered" id="capaInfoTable" style="width:100%">
@@ -116,12 +110,12 @@
                     <tbody>
                         {% for capa_info in sample.capa_infos %}
                         <tr class="data">
-                            <td>{{ capa_info.name }}</td>
+                            <td>{{ filter_link('capa', 'name', capa_info.name) }}</td>
                             <td>{{ capa_info.scope }}</td>
                             <td>{{ capa_info.description }}</td>
                             <td>{{ capa_info.authors }}</td>
-                            <td>{{ capa_info.references }}</td>
-                            <td>{{ capa_info.namespace }}</td>
+                            <td>{{ capa_info.references or '' }}</td>
+                            <td>{{ filter_link('capa', 'namespace', capa_info.namespace) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -130,19 +124,13 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='Bootstrap5/js/bootstrap.bundle.min.js') }}"></script>
+
     <script>
         $(document).ready(function(){
             var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
             var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl)
             })
-
-            // Ativar abas
-            $('#sampleTab a').on('click', function (e) {
-                e.preventDefault();
-                $(this).tab('show');
-            });
 
             var datatablesDefaultConfig = {
                 dom: 'Bfrtip',
@@ -152,7 +140,8 @@
                 language: {
                     url: "{{ url_for('static', filename='DataTables/i18n/pt-BR.json') }}",
                 },
-                select: true
+                select: true,
+                pageLength: 50
             };
 
             $('#dieInfoTable').DataTable(datatablesDefaultConfig);
@@ -160,5 +149,4 @@
             $('#capaInfoTable').DataTable(datatablesDefaultConfig);
         });
     </script>
-</body>
-</html>
+{% endblock %}

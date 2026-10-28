@@ -1,18 +1,11 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='Bootstrap5/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='Bootstrap5/css/bootstrap.min.css') }}">
+{% extends "base.html" %}
 
-    <link href="{{ url_for('static', filename='DataTables/datatables.min.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='DataTables/datatables.min.js') }} "></script>
-    <title>Lista de Amostras</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Amostras</h1>
+{% block content %}
+    <div class="container pt-4">
+        <h3 class="m-3">Amostras - {{ filtr }}</h3>
+        {% if not samples %}
+            <p class="text-muted" role="status">Nenhuma amostra encontrada.</p>
+        {% endif %}
         <!-- Abas de Navegação -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
@@ -20,15 +13,6 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="instrument-statistics-tab" data-bs-toggle="tab" href="#instrumentStatistics" role="tab" aria-controls="instrumentStatistics" aria-selected="false">Resumo da Instrumentação</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="die-statistics-tab" data-bs-toggle="tab" href="#dieStatistics" role="tab" aria-controls="dieStatistics" aria-selected="false">Resumo Die</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="yara-statistics-tab" data-bs-toggle="tab" href="#yaraStatistics" role="tab" aria-controls="yaraStatistics" aria-selected="false">Resumo Yara</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="capa-statistics-tab" data-bs-toggle="tab" href="#capaStatistics" role="tab" aria-controls="capaStatistics" aria-selected="false">Resumo Capa</a>
             </li>
         </ul>
 
@@ -66,78 +50,29 @@
             <div class="tab-pane fade" id="instrumentStatistics" role="tabpanel" aria-labelledby="instrument-statistics-tab">
                 <h3>Frequência PIN</h3>
                 <ul>
-                    <li>Sucesso: {{ samples_pin_success_freq }}</li>
-                    <li>Falha: {{ samples_pin_not_success_freq }}</li>
+                    <li><a href="{{ url_for('sample_list_tools', tool_name='pin', field='result', rule='success') }}">Sucesso</a>: {{ samples_pin_success_freq }}</li>
+                    <li><a href="{{ url_for('sample_list_tools', tool_name='pin', field='result', rule='fail') }}">Falha</a>: {{ samples_pin_not_success_freq }}</li>
                 </ul>
                 <hr>
                 <h3>Frequência Dynamorio</h3>
                 <ul>
-                    <li>Sucesso: {{ samples_dynamorio_success_freq }}</li>
-                    <li>Falha: {{ samples_dynamorio_not_success_freq }}</li>
+                    <li><a href="{{ url_for('sample_list_tools', tool_name='dynamorio', field='result', rule='success') }}">Sucesso</a>: {{ samples_dynamorio_success_freq }}</li>
+                    <li><a href="{{ url_for('sample_list_tools', tool_name='dynamorio', field='result', rule='fail') }}">Falha</a>: {{ samples_dynamorio_not_success_freq }}</li>
                 </ul>
                 <hr>
                 <h3>Frequência Frida</h3>
                 <ul>
-                    <li>Sucesso: {{ samples_frida_success_freq }}</li>
-                    <li>Falha: {{ samples_frida_not_success_freq }}</li>
+                    <li><a href="{{ url_for('sample_list_tools', tool_name='frida', field='result', rule='success') }}">Sucesso</a>: {{ samples_frida_success_freq }}</li>
+                    <li><a href="{{ url_for('sample_list_tools', tool_name='frida', field='result', rule='fail') }}">Falha</a>: {{ samples_frida_not_success_freq }}</li>
                 </ul>
             </div>
 
-            <div class="tab-pane fade" id="dieStatistics" role="tabpanel" aria-labelledby="die-statistics-tab">
-                <h3>Frequência por Nome</h3>
-                <ul>
-                    {% for name, freq in die_name_freq.items() %}
-                    <li>{{ name }}: {{ freq }}</li>
-                    {% endfor %}
-                </ul>
-                <hr>
-                <h3>Frequência por Tipo</h3>
-                <ul>
-                    {% for type, freq in die_type_freq.items() %}
-                    <li>{{ type }}: {{ freq }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div class="tab-pane fade" id="yaraStatistics" role="tabpanel" aria-labelledby="yara-statistics-tab">
-                <h3>Frequência por Regra</h3>
-                <ul>
-                    {% for rule, freq in yara_rule_freq.items() %}
-                    <li>{{ rule }}: {{ freq }}</li>
-                    {% endfor %}
-                </ul>
-                <hr>
-                <h3>Frequência por Namespace</h3>
-                <ul>
-                    {% for namespac, freq in yara_namespace_freq.items() %}
-                    <li>{{ namespac }}: {{ freq }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div class="tab-pane fade" id="capaStatistics" role="tabpanel" aria-labelledby="capa-statistics-tab">
-                <h3>Frequência por Nome</h3>
-                <ul>
-                    {% for name, freq in capa_name_freq.items() %}
-                    <li>{{ name }}: {{ freq }}</li>
-                    {% endfor %}
-                </ul>
-                <hr>
-                <h3>Frequência por Namespace</h3>
-                <ul>
-                    {% for namespace, freq in capa_namespace_freq.items() %}
-                    <li>{{ namespace }}: {{ freq }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
         </div>
-
     </div>
 
-    <script src="{{ url_for('static', filename='Bootstrap5/js/bootstrap.bundle.min.js') }}"></script>
     <script>
         $(document).ready(function(){
-            
+
             var datatablesDefaultConfig = {
                 dom: 'Bfrtip',
                 buttons: [
@@ -146,11 +81,11 @@
                 language: {
                     url: "{{ url_for('static', filename='DataTables/i18n/pt-BR.json') }}",
                 },
-                select: true
+                select: true,
+                pageLength: 50
             };
 
             $('#samplesTable').DataTable(datatablesDefaultConfig);
         });
     </script>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% macro filter_link(tool_name, field, value) -%}
+    {% if value %}
+        <a href="{{ url_for('sample_list_tools', tool_name=tool_name, field=field, rule=value) }}">{{ value }}</a>
+    {% else %}
+        <span class="text-muted">—</span>
+    {% endif %}
+{%- endmacro %}
+
+{% macro frequency_chart(chart_id, values, count_key) -%}
+    {% if values %}
+        {% set maximum = values.values()|map(attribute=count_key)|max %}
+        <div class="frequency-chart" aria-label="Frequência de ocorrências">
+            {% for label, counts in values|dictsort %}
+                <div class="frequency-row">
+                    <label for="{{ chart_id }}-{{ loop.index }}">{{ label }}</label>
+                    <progress id="{{ chart_id }}-{{ loop.index }}" max="{{ maximum }}" value="{{ counts[count_key] }}">{{ counts[count_key] }}</progress>
+                    <span>{{ counts[count_key] }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Nenhuma detecção registrada.</p>
+    {% endif %}
+{%- endmacro %}

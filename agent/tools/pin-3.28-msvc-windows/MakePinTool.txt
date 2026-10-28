@@ -1,4 +1,17 @@
-Instalar o cygwin
-Incluir no Path
-Na pasta de ferramentas inserir o comando:
+Rebuilding Pintools on Windows
+
+This checkout contains runtime binaries and built DLLs under tools/obj-ia32
+and tools/obj-intel64. It does not include the Pintool source files or their
+makefiles, so it cannot rebuild them on its own.
+
+To rebuild, obtain the full matching Pin MSVC kit and the Pintool sources.
+Use the Visual Studio version supported by that kit. Open its Native Tools
+Command Prompt for the target architecture and add Cygwin GNU make to PATH.
+
+From the Pintool source directory containing its makefile, build the target:
+
     make all TARGET=intel64
+
+For 32-bit tools, use the matching compiler environment and TARGET=ia32.
+Place the resulting DLLs in tools/obj-intel64 or tools/obj-ia32 respectively.
+The agent expects calltrace.dll in both architecture directories.

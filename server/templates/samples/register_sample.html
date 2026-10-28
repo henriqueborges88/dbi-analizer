@@ -1,4 +1,11 @@
-<form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file">
-    <input type="submit" value="Enviar arquivo">
-</form>
+{% extends "base.html" %}
+{% block content %}
+    <div class="container pt-4">
+        <h1>Registrar amostra</h1>
+        <form action="{{ url_for('register_sample') }}" method="post">
+            <label for="hash_sha256">Hash SHA-256 da amostra</label>
+            <input id="hash_sha256" name="hash_sha256" required pattern="[a-fA-F0-9]{64}" maxlength="64">
+            <button type="submit">Registrar</button>
+        </form>
+    </div>
+{% endblock %}

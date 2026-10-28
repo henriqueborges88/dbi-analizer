@@ -162,10 +162,11 @@ The second argument sets the action to take when the run ends:
 | Page on the host | Contents |
 | --- | --- |
 | [Analysis](http://localhost:5000/analysis) | VM and snapshot settings, with start and stop controls. |
-| [Samples](http://localhost:5000/sample/list) | SHA-256 hashes, status, Pin, DynamoRIO, and Frida indicators, sample details, and tabs summarizing instrumentation and DIE, YARA, and capa detections. |
+| [Samples](http://localhost:5000/sample/list) | SHA-256 hashes, status, Pin, DynamoRIO, and Frida indicators, sample details, and an instrumentation summary. |
+| [Tools](http://localhost:5000/sample/tools) | DIE, YARA, and capa occurrence counts, distinct sample counts, and charts generated from the stored detections. |
 | [JSON list](http://localhost:5000/samples) | Record hashes and statuses used by the agent to select new samples. |
 
-In the sample list, click **Ver Detalhes** (View Details) to open a sample's information. The summary tabs show detection frequencies for the samples stored on the server.
+In the sample list, click **Ver Detalhes** (View Details) to open a sample's information. Click a detection or instrumentation result to filter the sample list. Filters use query parameters, preserving names that contain slashes, percent signs, or other special characters. Valid filters with no matches display an empty list.
 
 The **Processado** (Processed) status means that the server has run its processing steps on the uploaded ZIP. Check each tool's indicators and logs, since an individual tool failure does not necessarily prevent the remaining steps from completing.
 
@@ -199,3 +200,15 @@ Local VM files return to the snapshot state on each cycle. Use the ZIP archives 
 ## Repository security
 
 See [Repository security and CODEOWNERS](docs/repository-security.md) for contribution and review rules, GitHub Actions controls, and security configuration. For vulnerability reports, follow the [security policy](SECURITY.md).
+
+## Development checks and batch utilities
+
+After installing the server dependencies, run the dashboard regression tests from the repository root:
+
+```bat
+python -m unittest discover -s server/tests -v
+```
+
+The tests use SQLite in memory and mock network configuration, IP-file writes, and background thread startup. They do not start VirtualBox or execute samples.
+
+See [Batch utilities](scripts/README.md) for the optional Pin and ZIP scripts.
