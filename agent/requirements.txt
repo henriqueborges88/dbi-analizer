@@ -18,7 +18,7 @@ pefile==2023.2.7
 prompt-toolkit==3.0.39
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-pycparser==2.21
+pycparser==3.12
 pydantic==1.10.8
 Pygments==2.15.1
 requests==2.31.0
