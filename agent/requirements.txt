@@ -12,7 +12,7 @@ intervaltree==3.1.0
 log-symbols==0.0.14
 markdown-it-py==2.2.0
 mdurl==0.1.2
-msgpack==1.0.5
+msgpack==1.2.4
 networkx==2.5.1
 pefile==2023.2.7
 prompt-toolkit==3.0.39
